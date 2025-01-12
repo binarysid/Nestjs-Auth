@@ -1,14 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectModel(User.name)
-        private readonly userModel: Model<User>
+        private readonly userModel: Model<User>,
+        @Inject(forwardRef(() => AuthService))
+        private readonly authService: AuthService,
     ) {}
 
     public async create(dto: CreateUserDto) {
