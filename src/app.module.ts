@@ -11,6 +11,6 @@ import { CreateUserProvider } from './user/providers/create-user.provider';
   { dbName: 'user'}
   ), UserModule],
   controllers: [AppController],
-  providers: [AppService, CreateUserProvider],
+  providers: [AppService],
 })
 export class AppModule {}

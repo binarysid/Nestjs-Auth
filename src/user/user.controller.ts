@@ -5,25 +5,23 @@ import { PatchUserDto } from './dtos/patch-user.dto';
 
 @Controller('user')
 export class UserController {
-    constructor(
-        private readonly userService: UserService
-    ) {}
+  constructor(private readonly userService: UserService) {}
 
-    @Post('register')
-    public async create(@Body() dto: CreateUserDto) {
-        console.log("type dto: ", typeof dto);
-        console.log("instance dto: ", dto instanceof CreateUserDto);
-        return dto
-        // return this.userService.create(dto);
-    }
+  @Post('register')
+  public async create(@Body() dto: CreateUserDto) {
+    console.log('type dto: ', typeof dto);
+    console.log('instance dto: ', dto instanceof CreateUserDto);
+    // return dto;
+    return this.userService.create(dto);
+  }
 
-    @Get('all')
-    public async findAll() {
-        return "Hello TTS";
-    }
+  @Get('all')
+  public async findAll() {
+    return 'Hello TTS';
+  }
 
-    @Patch('update')
-    public async patch(@Body() dto: PatchUserDto) {
-        return dto
-    }
+  @Patch('update')
+  public async patch(@Body() dto: PatchUserDto) {
+    return dto;
+  }
 }
