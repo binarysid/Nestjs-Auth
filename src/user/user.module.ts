@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { CreateUserProvider } from './providers/create-user.provider';
+import { FindUserProvider } from './providers/find-user.provider';
 
 @Module({
     imports: [
@@ -15,6 +16,6 @@ import { CreateUserProvider } from './providers/create-user.provider';
     ],
     controllers: [UserController],
     exports: [UserService],
-    providers: [UserService, CreateUserProvider],
+    providers: [UserService, CreateUserProvider, FindUserProvider],
 })
 export class UserModule {}
