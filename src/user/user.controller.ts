@@ -17,7 +17,7 @@ export class UserController {
 
   @Get('all')
   public async findAll() {
-    return 'Hello TTS';
+    return this.userService.findAll();
   }
 
   @Patch('update')
