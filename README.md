@@ -22,6 +22,15 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+## Docker commands
+build- docker-compose -f .\docker-compose.dev.yml build --no-cache
+run- docker-compose -f .\docker-compose.dev.yml up
+remove everything from docker: 
+docker volume prune -f
+docker container prune -f
+docker image prune -a -f 
+docker builder prune -a -f
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
