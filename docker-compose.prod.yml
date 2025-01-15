@@ -1,0 +1,12 @@
+version: '0.0.1'
+
+services:
+  app_prod:
+    build:
+      context: .
+      target: prod # Make sure the Dockerfile has a production target
+    command: ['npm', 'run', 'start:prod'] # Run the production script
+    ports:
+      - '3000:3000' # Expose the app port
+    env_file:
+      - .env.prod # Include environment variables for production

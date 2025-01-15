@@ -1,0 +1,15 @@
+version: '0.0.1'
+
+services:
+  app_dev:
+    build:
+      context: .
+      target: dev # Make sure the Dockerfile has a development target
+    command: ['npm', 'run', 'dev'] # Run the dev script
+    ports:
+      - '3000:3000' # Expose the app port
+    env_file:
+      - .env.dev # Include environment variables from .env file
+    volumes:
+      - .:/usr/src/app # Mount the project directory to the container for live changes
+      - /usr/src/app/node_modules
