@@ -25,7 +25,7 @@ export class CreateUserProvider {
   ) {}
 
   public async createUser(dto: CreateUserDto) {
-    let existingUser = this.findUserProvider.findUserby(dto.email);
+    const existingUser = await this.findUserProvider.findUserby(dto.email);
     if (existingUser) {
       console.log('user exists');
       throw new BadRequestException(

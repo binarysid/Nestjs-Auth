@@ -14,9 +14,9 @@ export class FindUserProvider {
     private readonly userModel: Model<User>,
   ) {}
 
-  public async findUserby(email: String) {
+  public async findUserby(email: string) {
     let user = undefined;
-    console.log('user find request');
+    console.log('user find request: ', email);
     try {
       user = await this.userModel.findOne({ email: email });
     } catch (error) {
@@ -31,10 +31,10 @@ export class FindUserProvider {
 
     if (!user) {
       console.log('user does not exists');
-      throw new UnauthorizedException('User does not exists');
+      // throw new UnauthorizedException('User does not exists');
     }
 
-    console.log('user found');
+    // console.log('user found');
     return user;
   }
 }

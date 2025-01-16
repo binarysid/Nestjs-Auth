@@ -40,7 +40,7 @@ export class UserService {
     return this.createUserProvider.createUser(dto);
   }
 
-  public async findUserby(email: String) {
+  public async findUserby(email: string) {
     return await this.findUserProvider.findUserby(email);
   }
 }

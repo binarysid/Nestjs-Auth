@@ -9,6 +9,8 @@ import { SignInUserDto } from 'src/user/dtos/signin-user.dto';
 import { UserService } from 'src/user/user.service';
 import { HashingProvider } from './providers/hashing.provider';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigType } from '@nestjs/config';
+import jwtConfig from './config/jwt.config';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,9 @@ export class AuthService {
     private readonly hashingProvider: HashingProvider,
 
     private readonly jwtService: JwtService,
+
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
 
   public isAuth() {
@@ -27,6 +32,10 @@ export class AuthService {
 
   public async signIn(dto: SignInUserDto) {
     const user = await this.userService.findUserby(dto.email);
+    if (!user) {
+      throw new UnauthorizedException('User does not exists');
+    }
+
     let isEqual = false;
     console.log('found user: ', user);
     try {
@@ -49,10 +58,10 @@ export class AuthService {
         email: user.email,
       },
       {
-        audience: 'localhost:3000/',
-        issuer: 'localhost:3000/',
-        secret: 'my-api-secret',
-        expiresIn: 3600,
+        audience: this.jwtConfiguration.audience,
+        issuer: this.jwtConfiguration.issuer,
+        secret: this.jwtConfiguration.secret,
+        expiresIn: this.jwtConfiguration.accessTokenTTL,
       },
     );
     return {
