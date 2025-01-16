@@ -22,7 +22,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @UseGuards(AccessTokenGuard)
+  // @UseGuards(AccessTokenGuard)
   @Patch('update')
   public async patch(@Body() dto: PatchUserDto) {
     return dto;
