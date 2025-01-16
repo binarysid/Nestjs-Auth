@@ -11,3 +11,7 @@ services:
     volumes:
       - .:/usr/src/app # Mount the project directory to the container for live changes
       - /usr/src/app/node_modules
+    develop:
+      watch:
+        - action: rebuild
+        - path: .

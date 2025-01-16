@@ -18,6 +18,7 @@ export class UserController {
 
   @Get('all')
   public async findAll() {
+    console.log('find all');
     return this.userService.findAll();
   }
 
