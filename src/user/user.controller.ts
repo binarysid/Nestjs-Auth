@@ -11,12 +11,12 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
-  @Auth(AuthType.None)
+  @Auth(AuthType.None) // here we can pass multiple types with comma separated values. but if one of the type is None/public, the entire route becomes public
   public async create(@Body() dto: CreateUserDto) {
     console.log('type dto: ', typeof dto);
     console.log('instance dto: ', dto instanceof CreateUserDto);
-    // return dto;
-    return this.userService.create(dto);
+    return dto;
+    // return this.userService.create(dto);
   }
 
   @Get('all')
