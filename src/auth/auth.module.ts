@@ -6,6 +6,7 @@ import { BcryptProvider } from './providers/bcrypt.provider';
 import { UserModule } from 'src/user/user.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { GenerateTokenProvider } from './providers/generate-token.provider';
 import jwtConfig from './config/jwt.config';
 
 @Module({
@@ -17,6 +18,7 @@ import jwtConfig from './config/jwt.config';
       useClass: BcryptProvider,
     },
     JwtService,
+    GenerateTokenProvider,
   ],
   imports: [
     forwardRef(() => UserModule),
