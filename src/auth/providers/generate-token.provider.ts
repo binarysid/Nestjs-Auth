@@ -30,6 +30,7 @@ export class GenerateTokenProvider {
   }
 
   public async generateTokens(user: User) {
+    console.log('generateTokens: ', user);
     const [accessToken, refreshToken] = await Promise.all([
       // generate access token
       this.signToken<Partial<ActiveUserData>>(

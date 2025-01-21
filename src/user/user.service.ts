@@ -43,4 +43,8 @@ export class UserService {
   public async findUserby(email: string) {
     return await this.findUserProvider.findUserby(email);
   }
+
+  public async findUserbyID(id: string) {
+    return await this.findUserProvider.findUserbyId(id);
+  }
 }

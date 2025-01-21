@@ -8,11 +8,9 @@ import {
 import { SignInUserDto } from 'src/user/dtos/signin-user.dto';
 import { UserService } from 'src/user/user.service';
 import { HashingProvider } from './providers/hashing.provider';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigType } from '@nestjs/config';
-import jwtConfig from './config/jwt.config';
-import { ActiveUserData } from './interfaces/active-user.interface';
 import { GenerateTokenProvider } from './providers/generate-token.provider';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { RefresehTokenProvider } from './providers/refreseh-token.provider';
 
 @Injectable()
 export class AuthService {
@@ -22,12 +20,10 @@ export class AuthService {
 
     private readonly hashingProvider: HashingProvider,
 
-    private readonly generateTokenProvider: GenerateTokenProvider,
-  ) {}
+    private readonly tokenProvider: GenerateTokenProvider,
 
-  public isAuth() {
-    return true;
-  }
+    private readonly refresehTokenProvider: RefresehTokenProvider,
+  ) {}
 
   public async signIn(dto: SignInUserDto) {
     const user = await this.userService.findUserby(dto.email);
@@ -52,6 +48,10 @@ export class AuthService {
     }
     console.log('logged in success');
 
-    return await this.generateTokenProvider.generateTokens(user);
+    return await this.tokenProvider.generateTokens(user);
+  }
+
+  public async refreshToken(dto: RefreshTokenDto) {
+    return await this.refresehTokenProvider.refreshToken(dto);
   }
 }
