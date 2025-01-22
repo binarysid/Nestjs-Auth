@@ -11,6 +11,7 @@ import { HashingProvider } from './providers/hashing.provider';
 import { GenerateTokenProvider } from './providers/generate-token.provider';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { RefresehTokenProvider } from './providers/refreseh-token.provider';
+import { LoggerProvider } from 'src/logger/logger.provider';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +24,8 @@ export class AuthService {
     private readonly tokenProvider: GenerateTokenProvider,
 
     private readonly refresehTokenProvider: RefresehTokenProvider,
+
+    private readonly logger: LoggerProvider,
   ) {}
 
   public async signIn(dto: SignInUserDto) {
@@ -32,21 +35,23 @@ export class AuthService {
     }
 
     let isEqual = false;
-    console.log('found user: ', user);
+    this.logger.log('found user: ', user);
+
     try {
       const hashedPass = await this.hashingProvider.hash(dto.password);
       isEqual = await this.hashingProvider.compare(dto.password, user.password);
     } catch (error) {
-      console.log('password compare error');
+      this.logger.error('Could not compare password', error);
       throw new RequestTimeoutException(error, {
         description: 'Could not compare password',
       });
     }
 
     if (!isEqual) {
+      this.logger.error('password does not match');
       throw new UnauthorizedException('Incorrect password');
     }
-    console.log('logged in success');
+    this.logger.log('logged in success');
 
     return await this.tokenProvider.generateTokens(user);
   }

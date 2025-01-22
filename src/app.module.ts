@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -10,6 +10,8 @@ import { AccessTokenGuard } from 'src/auth/guards/access-token/access-token.guar
 import jwtConfig from 'src/auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthenticationGuard } from './auth/guards/authentication/authentication.guard';
+import { GlobalConfig } from './global.config.service';
+import { LoggerModule } from './logger/logger.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -29,6 +31,7 @@ const ENV = process.env.NODE_ENV;
     UserModule,
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [
@@ -38,6 +41,8 @@ const ENV = process.env.NODE_ENV;
       useClass: AuthenticationGuard,
     },
     AccessTokenGuard,
+    GlobalConfig,
   ],
+  exports: [GlobalConfig],
 })
 export class AppModule {}
