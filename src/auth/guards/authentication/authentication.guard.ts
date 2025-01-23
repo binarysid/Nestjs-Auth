@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { AccessTokenGuard } from '../access-token/access-token.guard';
 import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { AUTH_TYPE_KEY } from 'src/auth/constants/auth.constants';
-import { Observable } from 'rxjs';
+import { LoggerProvider } from 'src/logger/logger.provider';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
@@ -29,10 +29,11 @@ export class AuthenticationGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly accessTokenGuard: AccessTokenGuard,
+    private readonly logger: LoggerProvider,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log('AuthenticationGuard');
+    this.logger.log('Authentication Guard activation started');
     // Print authTypeGuardMap
     const authTypes = this.reflector.getAllAndOverride(AUTH_TYPE_KEY, [
       context.getHandler(),
@@ -58,12 +59,14 @@ export class AuthenticationGuard implements CanActivate {
         // The user is Authorised to access the resource
         instance.canActivate(context),
       ).catch((err) => {
+        this.logger.error('Error in canActivate', err);
         error = err;
       });
 
       // Display Can Activate
       // console.log(canActivate);
       if (canActivate) {
+        this.logger.debug('User is authorised');
         return true;
       }
     }

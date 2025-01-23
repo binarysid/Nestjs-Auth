@@ -13,6 +13,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { CreateUserProvider } from './providers/create-user.provider';
 import { FindUserProvider } from './providers/find-user.provider';
 import { ConfigService } from '@nestjs/config';
+import { LoggerProvider } from 'src/logger/logger.provider';
 
 @Injectable()
 export class UserService {
@@ -28,11 +29,13 @@ export class UserService {
     private readonly findUserProvider: FindUserProvider,
 
     private readonly configService: ConfigService,
+
+    private readonly logger: LoggerProvider,
   ) {}
 
   public findAll() {
     const environment = this.configService.get<string>('JWT_TOKEN_AUDIENCE');
-    console.log('env var: ', environment);
+    this.logger.log('env var: ', environment);
     return 'all vals';
   }
 

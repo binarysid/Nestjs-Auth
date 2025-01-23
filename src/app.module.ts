@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthenticationGuard } from './auth/guards/authentication/authentication.guard';
 import { GlobalConfig } from './global.config.service';
 import { LoggerModule } from './logger/logger.module';
+import { LoggerProvider } from './logger/logger.provider';
 
 const ENV = process.env.NODE_ENV;
 
@@ -42,6 +43,7 @@ const ENV = process.env.NODE_ENV;
     },
     AccessTokenGuard,
     GlobalConfig,
+    LoggerProvider,
   ],
   exports: [GlobalConfig],
 })
