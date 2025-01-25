@@ -20,7 +20,7 @@ export class AuthenticationGuard implements CanActivate {
     [AuthType.AccessToken]: this.accessTokenGuard,
     [AuthType.None]: {
       canActivate: () => {
-        console.log('None');
+        this.logger.debug('None');
         return true;
       },
     },
@@ -35,25 +35,24 @@ export class AuthenticationGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     this.logger.setRequest(request);
-    this.logger.debug('Authentication Guard activation started');
+    this.logger.debug(
+      'Authentication Guard activation started',
+      'this is a global guard',
+    );
     // Print authTypeGuardMap
     const authTypes = this.reflector.getAllAndOverride(AUTH_TYPE_KEY, [
       context.getHandler(),
       context.getClass(),
     ]) ?? [AuthenticationGuard.defaultAuthType];
     // Show what are authTypes
-    // console.log(authTypes);
 
     const guards = authTypes.map((type) => this.authTypeGuardMap[type]).flat();
     // printeGuards => Show that the user can pass an array in users controller as well
-    // console.log(guards);
 
     // Declare the default error
     let error = new UnauthorizedException();
 
     for (const instance of guards) {
-      // print each instance
-      // console.log(instance);
       // Decalre a new constant
       const canActivate = await Promise.resolve(
         // Here the AccessToken Guard Will be fired and check if user has permissions to acces
@@ -66,7 +65,6 @@ export class AuthenticationGuard implements CanActivate {
       });
 
       // Display Can Activate
-      // console.log(canActivate);
       if (canActivate) {
         this.logger.debug('User is authorised');
         return true;

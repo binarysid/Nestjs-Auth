@@ -10,7 +10,6 @@ import { AccessTokenGuard } from 'src/auth/guards/access-token/access-token.guar
 import jwtConfig from 'src/auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthenticationGuard } from './auth/guards/authentication/authentication.guard';
-// import { GlobalConfig } from './global.config.service';
 import { AppLoggerModule } from './logger/logger.module';
 import { LoggerProvider } from './logger/logger.provider';
 import { LoggerModule } from 'nestjs-pino';
@@ -86,9 +85,6 @@ const ENV = process.env.NODE_ENV;
       useClass: AuthenticationGuard,
     },
     AccessTokenGuard,
-    // GlobalConfig,
-    LoggerProvider,
   ],
-  // exports: [GlobalConfig],
 })
 export class AppModule {}

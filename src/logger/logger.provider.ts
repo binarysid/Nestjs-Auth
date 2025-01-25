@@ -2,6 +2,7 @@ import { Injectable, LoggerService } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import * as path from 'path';
 import { GlobalConfigProvider } from 'src/global.config/global.config.provider';
+import * as StackParser from 'error-stack-parser';
 
 @Injectable()
 export class LoggerProvider implements LoggerService {
@@ -17,88 +18,76 @@ export class LoggerProvider implements LoggerService {
 
   setRequest(req: Request) {
     this.request = req;
-    this.debug(`Request URL: ${req.url}`);
   }
 
-  log(message: any, context?: string) {
+  log(...messages: any[]) {
     if (this.config.isDev) {
-      const formattedMessage = this.formatMessage(message, context);
+      const formattedMessage = this.formatMessage(messages);
       this.logger.log(formattedMessage);
     }
   }
 
-  error(message: any, trace?: string, context?: string): void {
-    if (this.config.isDev) {
-      return;
+  error(...messages: any[]): void {
+    let callerInfo = '';
+    try {
+      const stack = StackParser.parse(new Error());
+      const caller = stack.find(
+        (frame) => frame.fileName && !frame.fileName.includes(__filename),
+      );
+      if (!caller) callerInfo = 'unknown';
+
+      const fileName = path.basename(caller.fileName);
+      const functionName = caller.functionName || 'anonymous';
+      callerInfo = `${fileName}:${caller.lineNumber} [${functionName}]`;
+    } catch (error) {
+      callerInfo = 'unknown';
     }
-    const callerInfo = this.getCallerInfo();
-    const formattedMessage = this.formatMessage(message, context, trace);
-    const errorDetails = `[${callerInfo}] ${formattedMessage}`;
-    this.logger.error(errorDetails);
-    this.logToFile(errorDetails);
+
+    const formattedMessage = this.formatMessage(messages);
+    if (this.config.isDev) {
+      this.logger.error(formattedMessage);
+    } else {
+      const errorDetails = `[${callerInfo}] ${formattedMessage}`;
+      this.logger.error(errorDetails);
+      this.logToFile(errorDetails);
+    }
   }
 
-  warn(message: any, context?: string): void {
+  warn(...messages: any[]): void {
     if (this.config.isDev) {
-      const formattedMessage = this.formatMessage(message, context);
+      const formattedMessage = this.formatMessage(messages);
       this.logger.warn(formattedMessage);
     }
   }
 
-  debug(message: any, context?: string): void {
+  debug(...messages: any[]): void {
     if (this.config.isDev) {
-      const formattedMessage = this.formatMessage(message, context);
+      const formattedMessage = this.formatMessage(messages);
       this.logger.debug(formattedMessage);
     }
   }
 
-  info(message: any, context?: string): void {
+  info(...messages: any[]): void {
     if (this.config.isDev) {
-      const formattedMessage = this.formatMessage(message, context);
+      const formattedMessage = this.formatMessage(messages);
       this.logger.log(formattedMessage);
     }
   }
 
-  verbose(message: any, context?: string): void {
+  verbose(...messages: any[]): void {
     if (this.config.isDev) {
-      const formattedMessage = this.formatMessage(message, context);
+      const formattedMessage = this.formatMessage(messages);
       this.logger.trace(formattedMessage);
     }
   }
 
-  private formatMessage(
-    message: any,
-    context?: string,
-    trace?: string,
-  ): string {
-    return context
-      ? `[${context}] ${message}${trace ? ` - Trace: ${trace}` : ''}`
-      : `${message}${trace ? ` - Trace: ${trace}` : ''}` +
-          ' ' +
-          `[${this.request.url}]`;
+  private formatMessage(messages: any[]): string {
+    const baseMessage = messages
+      .map((msg) => (typeof msg === 'object' ? JSON.stringify(msg) : msg))
+      .join(' ');
+
+    return this.request ? `${baseMessage} [${this.request.url}]` : baseMessage;
   }
 
-  private logToFile(message: string): void {
-    // Placeholder for file logging logic
-    console.log(`(Simulated) Writing to file: ${message}`);
-  }
-
-  private getCallerInfo(): string {
-    const stack = new Error().stack || '';
-    const stackLines = stack.split('\n');
-
-    // Look for the first line that isn't part of this file
-    const callerLine = stackLines.find((line) => !line.includes(__filename));
-    if (!callerLine) return 'unknown';
-
-    // Extract file name, line number, and function name
-    const match = callerLine.match(/at (.+) \((.+):(\d+):(\d+)\)/);
-    if (match) {
-      const [, functionName, filePath, lineNumber] = match;
-      const fileName = path.basename(filePath);
-      return `${fileName}:${lineNumber} [${functionName}]`;
-    }
-
-    return 'unknown';
-  }
+  private logToFile(message: string): void {}
 }

@@ -7,23 +7,25 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/auth/interfaces/active-user.interface';
+import { LoggerProvider } from 'src/logger/logger.provider';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly logger: LoggerProvider,
+  ) {}
 
   @Post('register')
   @Auth(AuthType.None) // here we can pass multiple types with comma separated values. but if one of the type is None/public, the entire route becomes public
   public async create(@Body() dto: CreateUserDto) {
-    console.log('type dto: ', typeof dto);
-    console.log('instance dto: ', dto instanceof CreateUserDto);
     return dto;
     // return this.userService.create(dto);
   }
 
   @Get('all')
   public async findAll() {
-    console.log('find all');
+    this.logger.debug('find all');
     return this.userService.findAll();
   }
 
@@ -35,7 +37,7 @@ export class UserController {
     // then dont pass any argument to the @ActiveUser decorator
     @ActiveUser('email') user: ActiveUserData,
   ) {
-    console.log('user: ', user);
+    this.logger.debug('user: ', user);
     return dto;
   }
 }

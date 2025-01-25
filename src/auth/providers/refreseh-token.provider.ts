@@ -6,6 +6,7 @@ import { ConfigType } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
 import { GenerateTokenProvider } from './generate-token.provider';
 import { ActiveUserData } from '../interfaces/active-user.interface';
+import { LoggerProvider } from 'src/logger/logger.provider';
 
 @Injectable()
 export class RefresehTokenProvider {
@@ -16,6 +17,7 @@ export class RefresehTokenProvider {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly tokenProvider: GenerateTokenProvider,
+    private readonly logger: LoggerProvider,
   ) {}
 
   public async refreshToken(dto: RefreshTokenDto) {
@@ -27,15 +29,15 @@ export class RefresehTokenProvider {
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
       });
-      console.log('found user id: ', sub);
+      this.logger.debug('found user id: ', sub);
       const user = await this.userService.findUserbyID(sub);
       if (!user) {
         throw new Error('User not found');
       }
-      console.log('found user: ', user);
+      this.logger.debug('found user: ', user);
       return await this.tokenProvider.generateTokens(user);
     } catch (error) {
-      console.log('refresh token error: ', error);
+      this.logger.error('refresh token error: ', error);
       throw new Error('Could not refresh token');
     }
   }
