@@ -9,9 +9,8 @@ import { ConfigModule } from '@nestjs/config';
 import { GenerateTokenProvider } from './providers/generate-token.provider';
 import { RefresehTokenProvider } from './providers/refreseh-token.provider';
 import jwtConfig from './config/jwt.config';
-import { LoggerModule } from 'src/logger/logger.module';
+import { AppLoggerModule } from 'src/logger/logger.module';
 import { LoggerProvider } from 'src/logger/logger.provider';
-import { GlobalConfig } from 'src/global.config.service';
 
 @Module({
   controllers: [AuthController],
@@ -25,13 +24,12 @@ import { GlobalConfig } from 'src/global.config.service';
     GenerateTokenProvider,
     RefresehTokenProvider,
     LoggerProvider,
-    GlobalConfig,
   ],
   imports: [
     forwardRef(() => UserModule),
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
-    LoggerModule,
+    AppLoggerModule,
   ],
   exports: [AuthService, HashingProvider],
 })

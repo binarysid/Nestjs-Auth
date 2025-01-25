@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { Environment } from './Environment.enum';
+import { Injectable, Scope } from '@nestjs/common';
+import { Environment } from 'src/Environment.enum';
 
 @Injectable()
-export class GlobalConfig {
+export class GlobalConfigProvider {
   private readonly environment: Environment;
+  private requestUrl: string;
 
   constructor() {
     const env = process.env.NODE_ENV as Environment;
@@ -12,7 +13,7 @@ export class GlobalConfig {
       : Environment.Development;
   }
 
-  get isDev(): boolean {
+  public get isDev(): boolean {
     return this.environment === Environment.Development;
   }
 
@@ -30,5 +31,13 @@ export class GlobalConfig {
 
   get<T = string>(key: string, defaultValue?: T): T {
     return (process.env[key] as T) || defaultValue;
+  }
+
+  setRequestUrl(url: string) {
+    this.requestUrl = url;
+  }
+
+  getRequestUrl(): string {
+    return this.requestUrl;
   }
 }

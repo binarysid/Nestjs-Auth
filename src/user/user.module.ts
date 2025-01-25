@@ -7,7 +7,6 @@ import { AuthModule } from 'src/auth/auth.module';
 import { CreateUserProvider } from './providers/create-user.provider';
 import { FindUserProvider } from './providers/find-user.provider';
 import { LoggerProvider } from 'src/logger/logger.provider';
-import { GlobalConfig } from 'src/global.config.service';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { GlobalConfig } from 'src/global.config.service';
     CreateUserProvider,
     FindUserProvider,
     LoggerProvider,
-    GlobalConfig,
   ],
 })
 export class UserModule {}
