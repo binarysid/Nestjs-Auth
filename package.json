@@ -28,6 +28,7 @@
     "@nestjs/mapped-types": "^2.0.6",
     "@nestjs/mongoose": "^10.1.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^8.1.1",
     "authentication": "file:",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",

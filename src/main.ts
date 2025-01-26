@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { Logger } from 'nestjs-pino';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const apiRoute = 'api';
   app.useGlobalPipes(
     // setting global pipe to use dto's for validation
     new ValidationPipe({
@@ -13,8 +14,18 @@ async function bootstrap() {
       transform: true, // transforms the dto object to use directly as class object
     }),
   );
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(`${apiRoute}`);
   app.enableCors();
+  const config = new DocumentBuilder()
+    .setTitle('TTS API')
+    .setDescription('TTS API Documentation')
+    .setVersion('1.0')
+    .addServer('http://localhost:3000')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup(`${apiRoute}/doc`, app, document);
   await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();

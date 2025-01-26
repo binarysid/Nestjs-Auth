@@ -1,13 +1,25 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { PatchUserDto } from './dtos/patch-user.dto';
-import { AccessTokenGuard } from 'src/auth/guards/access-token/access-token.guard';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/auth/interfaces/active-user.interface';
 import { LoggerProvider } from 'src/logger/logger.provider';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { GetUsersParamDto } from './dtos/get-user-param.dto';
 
 @Controller('user')
 export class UserController {
@@ -24,6 +36,7 @@ export class UserController {
   }
 
   @Get('all')
+  @Auth(AuthType.None)
   public async findAll() {
     this.logger.debug('find all');
     return this.userService.findAll();
@@ -39,5 +52,34 @@ export class UserController {
   ) {
     this.logger.debug('user: ', user);
     return dto;
+  }
+
+  @Get('/:id?')
+  @ApiOperation({
+    summary: 'Fetches a list of registered users on the application.',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: String,
+    description: 'The upper limit of pages you want the pagination to return',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'page',
+    type: String,
+    description:
+      'The position of the page number that you want the API to return',
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Users fetched successfully based on the query',
+  })
+  public getUsers(
+    @Param() getUserParamDto: GetUsersParamDto,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ) {
+    return 'all users';
   }
 }
