@@ -23,12 +23,13 @@
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Docker commands
+
 build- docker-compose -f .\docker-compose.dev.yml build --no-cache
 run- docker-compose -f .\docker-compose.dev.yml up
-remove everything from docker: 
+remove everything from docker:
 docker volume prune -f
 docker container prune -f
-docker image prune -a -f 
+docker image prune -a -f
 docker builder prune -a -f
 
 ## Description
@@ -53,6 +54,10 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+
+# code documentation
+
+$ npm run doc
 
 ## Run tests
 
