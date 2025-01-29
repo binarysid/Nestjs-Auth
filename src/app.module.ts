@@ -11,30 +11,27 @@ import jwtConfig from 'src/auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthenticationGuard } from './auth/guards/authentication/authentication.guard';
 import { AppLoggerModule } from './logger/logger.module';
-import { LoggerProvider } from './logger/logger.provider';
 import { LoggerModule } from 'nestjs-pino';
 import { GlobalConfigModule } from './global.config/global.config.module';
 import { GlobalConfigProvider } from './global.config/global.config.provider';
-
-const ENV = process.env.NODE_ENV;
 
 @Module({
   imports: [
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: !ENV ? '.env' : `.env.${ENV}`,
+      envFilePath: GlobalConfigProvider.envFilePath,
     }),
     MongooseModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        uri: `mongodb+srv://${configService.get('DB_USER')}:${configService.get('DB_PASSWORD')}@${configService.get('DB_HOST')}/${configService.get('DB_NAME')}}`,
+      useFactory: (config: GlobalConfigProvider) => ({
+        uri: config.dbURI,
       }),
-      inject: [ConfigService],
+      inject: [GlobalConfigProvider],
     }),
     LoggerModule.forRootAsync({
       useFactory: (config: GlobalConfigProvider) => ({
         pinoHttp: {
-          level: config.isDev ? 'debug' : 'info', // Set log level based on environment
+          level: config.logLevel, // Set log level based on environment
           transport: config.isDev
             ? {
                 target: 'pino-pretty',

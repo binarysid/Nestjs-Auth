@@ -50,4 +50,4 @@ EXPOSE 3000
 ENV NODE_ENV=prod
 
 # Command to run the application in production mode
-CMD ["npm", "run", "start:prod"]
+CMD ["npm", "run", "prod"]

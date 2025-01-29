@@ -68,10 +68,8 @@ export class LoggerProvider implements LoggerService {
   }
 
   info(...messages: any[]): void {
-    if (this.config.isDev) {
-      const formattedMessage = this.formatMessage(messages);
-      this.logger.log(formattedMessage);
-    }
+    const formattedMessage = this.formatMessage(messages);
+    this.logger.log(formattedMessage);
   }
 
   verbose(...messages: any[]): void {
