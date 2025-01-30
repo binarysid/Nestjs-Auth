@@ -1,0 +1,35 @@
+services:
+  app_dev:
+    build:
+      context: .
+      target: dev
+    command: ['npm', 'run', 'dev']
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env.dev
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongodb
+    networks:
+      - app_network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app_network
+
+volumes:
+  mongodb_data: # Defines the named volume
+    driver: local
+
+networks:
+  app_network: # Defines the custom network for the services
+    driver: bridge

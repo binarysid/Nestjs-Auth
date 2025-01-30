@@ -17,19 +17,22 @@ import { GlobalConfigProvider } from './global.config/global.config.provider';
 
 @Module({
   imports: [
+    GlobalConfigModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: GlobalConfigProvider.envFilePath,
     }),
     MongooseModule.forRootAsync({
-      useFactory: (config: GlobalConfigProvider) => ({
+      imports: [GlobalConfigModule],
+      useFactory: async (config: GlobalConfigProvider) => ({
         uri: config.dbURI,
       }),
       inject: [GlobalConfigProvider],
     }),
     LoggerModule.forRootAsync({
-      useFactory: (config: GlobalConfigProvider) => ({
+      imports: [GlobalConfigModule],
+      useFactory: async (config: GlobalConfigProvider) => ({
         pinoHttp: {
           level: config.logLevel, // Set log level based on environment
           transport: config.isDev
@@ -72,7 +75,6 @@ import { GlobalConfigProvider } from './global.config/global.config.provider';
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     AppLoggerModule,
-    GlobalConfigModule,
   ],
   controllers: [AppController],
   providers: [

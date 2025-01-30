@@ -1,7 +1,5 @@
 import { Injectable, OnModuleInit, Scope } from '@nestjs/common';
 import { Environment } from 'src/Environment.enum';
-import { LoggerProvider } from 'src/logger/logger.provider';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GlobalConfigProvider implements OnModuleInit {
@@ -9,10 +7,7 @@ export class GlobalConfigProvider implements OnModuleInit {
   private requestUrl: string;
   private static readonly ENV = process.env.NODE_ENV || Environment.Development;
 
-  constructor(
-    private readonly logger: LoggerProvider,
-    private readonly configService: ConfigService,
-  ) {
+  constructor() {
     const env = process.env.NODE_ENV as Environment;
     this.environment = Object.values(Environment).includes(env)
       ? env
@@ -20,7 +15,7 @@ export class GlobalConfigProvider implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.logger.info(`Running in ${this.environment} mode`);
+    console.log(`Running in ${this.environment} mode`);
   }
 
   public get isDev(): boolean {
@@ -40,9 +35,8 @@ export class GlobalConfigProvider implements OnModuleInit {
   }
 
   get dbURI(): string {
-    if (this.isProd)
-      return `mongodb+srv://${this.configService.get('DB_USER')}:${this.configService.get('DB_PASSWORD')}@${this.configService.get('DB_HOST')}/${this.configService.get('DB_NAME')}}`;
-    return 'mongodb://localhost:27017/';
+    return `mongodb+srv://${this.get('DB_USER')}:${this.get('DB_PASSWORD')}@${this.get('DB_HOST')}/${this.get('DB_NAME')}`;
+    // return 'mongodb://mongodb:27017/tts-user'; // for docker
   }
 
   get logLevel(): string {
