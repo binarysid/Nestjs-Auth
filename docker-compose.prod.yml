@@ -3,6 +3,8 @@ services:
     build:
       context: .
       target: prod # Make sure the Dockerfile has a production target
+    image: auth-image-prod
+    container_name: auth-container-prod
     command: ['npm', 'run', 'prod'] # Run the production script
     ports:
       - '3000:3000' # Expose the app port

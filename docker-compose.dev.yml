@@ -3,6 +3,8 @@ services:
     build:
       context: .
       target: dev # Make sure the Dockerfile has a development target
+    image: auth-image-dev
+    container_name: auth-container-dev
     command: ['npm', 'run', 'dev'] # Run the dev script
     ports:
       - '3000:3000' # Expose the app port
