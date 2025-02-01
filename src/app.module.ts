@@ -14,6 +14,8 @@ import { AppLoggerModule } from './logger/logger.module';
 import { LoggerModule } from 'nestjs-pino';
 import { GlobalConfigModule } from './global.config/global.config.module';
 import { GlobalConfigProvider } from './global.config/global.config.provider';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerConfig, ThrottlerType } from './enums/throttler-type.enum';
 
 @Module({
   imports: [
@@ -71,6 +73,26 @@ import { GlobalConfigProvider } from './global.config/global.config.provider';
       }),
       inject: [GlobalConfigProvider],
     }),
+
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 2,
+        // ...ThrottlerConfig.options[ThrottlerType.DEFAULT],
+      },
+      // {
+      //   name: ThrottlerType.SHORT,
+      //   ...ThrottlerConfig.options[ThrottlerType.SHORT],
+      // },
+      // {
+      //   name: ThrottlerType.MEDIUM,
+      //   ...ThrottlerConfig.options[ThrottlerType.MEDIUM],
+      // },
+      // {
+      //   name: ThrottlerType.LONG,
+      //   ...ThrottlerConfig.options[ThrottlerType.LONG],
+      // },
+    ]),
     UserModule,
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
@@ -84,6 +106,10 @@ import { GlobalConfigProvider } from './global.config/global.config.provider';
       useClass: AuthenticationGuard,
     },
     AccessTokenGuard,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard, // Add throttler guard here
+    },
   ],
 })
 export class AppModule {}
