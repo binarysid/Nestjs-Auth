@@ -34,7 +34,7 @@ export class AccessTokenGuard implements CanActivate {
         token,
         this.jwtConfiguration,
       );
-      this.logger.log('Payload: ', payload);
+      this.logger.debug('Payload: ', payload);
       request[REQUEST_USER_KEY] = payload;
     } catch {
       this.logger.error('Could not verify token');

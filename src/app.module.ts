@@ -76,22 +76,20 @@ import { ThrottlerConfig, ThrottlerType } from './enums/throttler-type.enum';
 
     ThrottlerModule.forRoot([
       {
-        ttl: 60000,
-        limit: 2,
-        // ...ThrottlerConfig.options[ThrottlerType.DEFAULT],
+        ...ThrottlerConfig.options[ThrottlerType.DEFAULT],
       },
-      // {
-      //   name: ThrottlerType.SHORT,
-      //   ...ThrottlerConfig.options[ThrottlerType.SHORT],
-      // },
-      // {
-      //   name: ThrottlerType.MEDIUM,
-      //   ...ThrottlerConfig.options[ThrottlerType.MEDIUM],
-      // },
-      // {
-      //   name: ThrottlerType.LONG,
-      //   ...ThrottlerConfig.options[ThrottlerType.LONG],
-      // },
+      {
+        name: ThrottlerType.SHORT,
+        ...ThrottlerConfig.options[ThrottlerType.SHORT],
+      },
+      {
+        name: ThrottlerType.MEDIUM,
+        ...ThrottlerConfig.options[ThrottlerType.MEDIUM],
+      },
+      {
+        name: ThrottlerType.LONG,
+        ...ThrottlerConfig.options[ThrottlerType.LONG],
+      },
     ]),
     UserModule,
     ConfigModule.forFeature(jwtConfig),
@@ -100,16 +98,16 @@ import { ThrottlerConfig, ThrottlerType } from './enums/throttler-type.enum';
   ],
   controllers: [AppController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard, // Add throttler guard here
+    },
     AppService,
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
     },
     AccessTokenGuard,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard, // Add throttler guard here
-    },
   ],
 })
 export class AppModule {}

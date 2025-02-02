@@ -19,6 +19,8 @@ import { ActiveUserData } from 'src/auth/interfaces/active-user.interface';
 import { LoggerProvider } from 'src/logger/logger.provider';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { GetUsersParamDto } from './dtos/get-user-param.dto';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { ThrottlerConfig, ThrottlerType } from 'src/enums/throttler-type.enum';
 
 @Controller('user')
 export class UserController {
@@ -33,6 +35,8 @@ export class UserController {
     return this.userService.create(dto);
   }
 
+  // @SkipThrottle()
+  // @Throttle(ThrottlerConfig.getOptions(ThrottlerType.MEDIUM))
   @Get('all')
   @Auth(AuthType.None)
   public async findAll() {

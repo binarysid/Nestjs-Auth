@@ -20,7 +20,6 @@ export class AuthenticationGuard implements CanActivate {
     [AuthType.AccessToken]: this.accessTokenGuard,
     [AuthType.None]: {
       canActivate: () => {
-        this.logger.debug('None');
         return true;
       },
     },
@@ -35,10 +34,7 @@ export class AuthenticationGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     this.logger.setRequest(request);
-    this.logger.debug(
-      'Authentication Guard activation started',
-      'this is a global guard',
-    );
+    this.logger.debug('Authentication Guard activation');
     // Print authTypeGuardMap
     const authTypes = this.reflector.getAllAndOverride(AUTH_TYPE_KEY, [
       context.getHandler(),
@@ -66,7 +62,7 @@ export class AuthenticationGuard implements CanActivate {
 
       // Display Can Activate
       if (canActivate) {
-        this.logger.debug('User is authorised');
+        // this.logger.debug('User is authorised');
         return true;
       }
     }

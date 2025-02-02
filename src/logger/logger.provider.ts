@@ -3,6 +3,7 @@ import { Logger } from 'nestjs-pino';
 import * as path from 'path';
 import { GlobalConfigProvider } from 'src/global.config/global.config.provider';
 import * as StackParser from 'error-stack-parser';
+import * as fs from 'fs';
 
 @Injectable()
 export class LoggerProvider implements LoggerService {
@@ -28,26 +29,11 @@ export class LoggerProvider implements LoggerService {
   }
 
   error(...messages: any[]): void {
-    let callerInfo = '';
-    try {
-      const stack = StackParser.parse(new Error());
-      const caller = stack.find(
-        (frame) => frame.fileName && !frame.fileName.includes(__filename),
-      );
-      if (!caller) callerInfo = 'unknown';
-
-      const fileName = path.basename(caller.fileName);
-      const functionName = caller.functionName || 'anonymous';
-      callerInfo = `${fileName}:${caller.lineNumber} [${functionName}]`;
-    } catch (error) {
-      callerInfo = 'unknown';
-    }
-
     const formattedMessage = this.formatMessage(messages);
+    const errorDetails = `[${formattedMessage} | ${this.getCallerInfo()}`;
     if (this.config.isDev) {
-      this.logger.error(formattedMessage);
+      this.logger.error(errorDetails);
     } else {
-      const errorDetails = `[${callerInfo}] ${formattedMessage}`;
       this.logger.error(errorDetails);
       this.logToFile(errorDetails);
     }
@@ -60,10 +46,53 @@ export class LoggerProvider implements LoggerService {
     }
   }
 
+  private getCallerInfo(): string {
+    const originalPrepareStackTrace = Error.prepareStackTrace;
+    try {
+      const err = new Error();
+      Error.prepareStackTrace = (_, structuredStackTrace) =>
+        structuredStackTrace;
+      const stack = err.stack as unknown as NodeJS.CallSite[];
+
+      if (!stack || stack.length < 3) return 'Caller unknown';
+
+      for (let i = 2; i < stack.length; i++) {
+        const caller = stack[i];
+        let fileName = caller.getFileName();
+        const lineNumber = caller.getLineNumber();
+
+        if (
+          fileName &&
+          !fileName.includes('logger.service.ts') &&
+          !fileName.includes('node_modules')
+        ) {
+          // Ensure we are not referencing dist files
+          if (fileName.endsWith('.js') && fileName.includes('dist')) {
+            // Get the relative path from dist folder, remove `.js` extension and map it back to the source .ts file
+            fileName = fileName
+              .replace(/^.*dist/, 'src')
+              .replace(/\.js$/, '.ts');
+          }
+
+          // Check if the file exists before proceeding
+          if (fs.existsSync(fileName)) {
+            const relativePath = path.relative(process.cwd(), fileName);
+            return `${relativePath}:${lineNumber}`; // This format makes it clickable
+          } else {
+            return 'Caller unknown';
+          }
+        }
+      }
+      return 'Caller unknown';
+    } finally {
+      Error.prepareStackTrace = originalPrepareStackTrace;
+    }
+  }
+
   debug(...messages: any[]): void {
     if (this.config.isDev) {
       const formattedMessage = this.formatMessage(messages);
-      this.logger.debug(formattedMessage);
+      this.logger.debug(`${formattedMessage} | ${this.getCallerInfo()}`);
     }
   }
 
