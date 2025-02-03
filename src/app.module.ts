@@ -78,18 +78,6 @@ import { ThrottlerConfig, ThrottlerType } from './enums/throttler-type.enum';
       {
         ...ThrottlerConfig.options[ThrottlerType.DEFAULT],
       },
-      {
-        name: ThrottlerType.SHORT,
-        ...ThrottlerConfig.options[ThrottlerType.SHORT],
-      },
-      {
-        name: ThrottlerType.MEDIUM,
-        ...ThrottlerConfig.options[ThrottlerType.MEDIUM],
-      },
-      {
-        name: ThrottlerType.LONG,
-        ...ThrottlerConfig.options[ThrottlerType.LONG],
-      },
     ]),
     UserModule,
     ConfigModule.forFeature(jwtConfig),

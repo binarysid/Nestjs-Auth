@@ -4,11 +4,14 @@ import { SignInUserDto } from 'src/user/dtos/signin-user.dto';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { ThrottlerConfig, ThrottlerType } from 'src/enums/throttler-type.enum';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly service: AuthService) {}
 
+  @Throttle(ThrottlerConfig.getOptions(ThrottlerType.SHORT))
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @Auth(AuthType.None) // this makes the endpoint public
@@ -16,6 +19,7 @@ export class AuthController {
     return await this.service.signIn(dto);
   }
 
+  @Throttle(ThrottlerConfig.getOptions(ThrottlerType.SHORT))
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   @Auth(AuthType.None)

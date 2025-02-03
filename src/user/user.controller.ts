@@ -19,7 +19,7 @@ import { ActiveUserData } from 'src/auth/interfaces/active-user.interface';
 import { LoggerProvider } from 'src/logger/logger.provider';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { GetUsersParamDto } from './dtos/get-user-param.dto';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { ThrottlerConfig, ThrottlerType } from 'src/enums/throttler-type.enum';
 
 @Controller('user')
@@ -29,14 +29,14 @@ export class UserController {
     private readonly logger: LoggerProvider,
   ) {}
 
+  @Throttle(ThrottlerConfig.getOptions(ThrottlerType.SHORT))
   @Post('register')
   @Auth(AuthType.None) // here we can pass multiple types with comma separated values. but if one of the type is None/public, the entire route becomes public
   public async create(@Body() dto: CreateUserDto) {
     return this.userService.create(dto);
   }
 
-  // @SkipThrottle()
-  // @Throttle(ThrottlerConfig.getOptions(ThrottlerType.MEDIUM))
+  @Throttle(ThrottlerConfig.getOptions(ThrottlerType.LONG))
   @Get('all')
   @Auth(AuthType.None)
   public async findAll() {
@@ -44,6 +44,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Throttle(ThrottlerConfig.getOptions(ThrottlerType.SHORT))
   @Patch('update')
   public async patch(
     @Body() dto: PatchUserDto,
@@ -56,6 +57,7 @@ export class UserController {
     return dto;
   }
 
+  @Throttle(ThrottlerConfig.getOptions(ThrottlerType.MEDIUM))
   @Get('/:id?')
   @ApiOperation({
     summary: 'Fetches a list of registered users on the application.',

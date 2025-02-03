@@ -35,7 +35,7 @@ export class UserService {
 
   public findAll() {
     const environment = this.configService.get<string>('JWT_TOKEN_AUDIENCE');
-    this.logger.debug('env var: ', environment);
+    // this.logger.debug('env var: ', environment);
     return 'all vals';
   }
 
