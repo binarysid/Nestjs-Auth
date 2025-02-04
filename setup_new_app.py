@@ -3,6 +3,7 @@ import json
 import shutil
 import subprocess
 import sys
+import yaml
 
 def run_command(command, cwd=None):
     """Run a shell command and handle errors."""
@@ -65,6 +66,41 @@ def rename_project_directory(new_name):
     print(f"Renamed project directory to '{new_name}'.")
     os.chdir(new_dir_path)  # Change working directory to the new name
 
+def update_docker_compose(new_name):
+    """Update image and container_name in docker-compose.dev.yml and docker-compose.prod.yml."""
+    files = {
+        "docker-compose.dev.yml": {
+            "image": f"{new_name}_auth-image-dev",
+            "container_name": f"{new_name}_auth-container-dev"
+        },
+        "docker-compose.prod.yml": {
+            "image": f"{new_name}_auth-image-prod",
+            "container_name": f"{new_name}_auth-container-prod"
+        }
+    }
+
+    for file, updates in files.items():
+        if os.path.exists(file):
+            with open(file, "r") as f:
+                try:
+                    data = yaml.safe_load(f)
+                except yaml.YAMLError as e:
+                    print(f"Error reading {file}: {e}")
+                    sys.exit(1)
+
+            # Update only the image and container_name fields
+            for service in data.get("services", {}).values():
+                if "image" in service:
+                    service["image"] = updates["image"]
+                if "container_name" in service:
+                    service["container_name"] = updates["container_name"]
+
+            # Write back the modified YAML
+            with open(file, "w") as f:
+                yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+
+            print(f"Updated {file} with new image and container_name.")
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python setup_nestjs.py <new_project_name>")
@@ -80,6 +116,9 @@ def main():
 
     # Rename the current project directory
     rename_project_directory(new_project_name)
+
+    # Update Docker Compose files
+    update_docker_compose(new_project_name)
 
     # Remove node_modules & package-lock.json, then install dependencies
     clean_and_install_dependencies()
