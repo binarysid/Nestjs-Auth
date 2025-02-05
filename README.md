@@ -16,13 +16,13 @@ This guide will help you configure a new NestJS-based authentication project wit
 ### 1️⃣ Clone This Repository
 
 ```sh
-git clone git@github.com:nestjs/throttler.git
+git clone git@github.com:binarysid/Nestjs-Auth.git
 ```
 
 or
 
 ```sh
-git clone https://github.com/nestjs/throttler.git
+git clone https://github.com/binarysid/Nestjs-Auth.git
 ```
 
 ### 2️⃣ Run the Setup Script
