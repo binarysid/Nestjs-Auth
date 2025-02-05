@@ -1,49 +1,147 @@
-## Docker configuration
+# 🚀 Guide to Setting Up a New Project
 
-In docker compose yml file for both dev and prod, modify the image and container name according to the project
+This guide will help you configure a new NestJS-based authentication project with **registration, login, JWT token generation, refresh token, and logout** functionalities.
 
-## Docker commands
+## 📌 Prerequisites
 
-build and run dev container:
+- Install **Node.js** (Recommended: LTS version)
+- Install **Docker** (if running with Docker)
+- Install **Python** (Required to run setup script)
+- Install **Homebrew** (For API rate-limiting test)
+
+---
+
+## 🛠️ Setup Instructions
+
+### 1️⃣ Clone This Repository
+
+```sh
+git clone git@github.com:nestjs/throttler.git
+```
+
+or
+
+```sh
+git clone https://github.com/nestjs/throttler.git
+```
+
+### 2️⃣ Run the Setup Script
+
+```sh
+python3 setup_new_app.py project-name
+```
+
+👉 This will:
+
+- Remove Git tracking (`.git` folder)
+- Rename the project
+- Update `package.json` and `docker-compose` files
+- Install all dependencies
+
+### 3️⃣ Install Dependencies
+
+```sh
+npm install
+```
+
+### 4️⃣ Configure Environment Variables
+
+The project needs `.env.dev` and `.env.prod` to run. Provide **database credentials** and **JWT values** in `.env.dev` and `.env.prod`.
+
+### 5️⃣ Clean Up (Optional)
+
+Once configured, you may delete the setup script:
+
+```sh
+rm setup_new_app.py
+```
+
+---
+
+## 🚀 Running the Project
+
+### 🐛 **Run with Docker**
+
+#### ➤ **Build and Run Development Container**
+
+```sh
 docker-compose -f docker-compose.dev.yml up --build
+```
 
-build and run prod container:
+#### ➤ **Build and Run Production Container**
+
+```sh
 docker-compose -f docker-compose.prod.yml up --build
+```
 
-remove everything from docker [If needed]:
+#### ➤ **Remove All Docker Resources (If Needed)**
+
+```sh
 docker volume prune -f
 docker container prune -f
 docker image prune -a -f
 docker builder prune -a -f
+```
 
-## ENV config
+---
 
-Provide db credentials and JWT values in env
+## ⚡ API Rate Limiting Test
 
-## API rate limiting testing:
+**Install `wrk` with Homebrew** (on macOS):
 
-Install wrk with homebrew. Then test with this- wrk -t1 -c20 -d20s http://localhost:3000/api/user/all
-here -c20 means 20 concurrent requests, -d20s means within a span of 20 sec
+```sh
+brew install wrk
+```
 
-## Description
+### Test Rate Limiting:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+```sh
+wrk -t1 -c20 -d20s http://localhost:3000/api/user/all
+```
 
-## Compile and run the project
+- `-c20` → **20 concurrent requests**
+- `-d20s` → **Send requests for 20 seconds**
 
-- Dev mode
-  npm run dev
+📌 **Throttle Configuration**: Modify limits in `throttler-type.enum.ts`.
 
-- Prod mode
-  npm run prod
+---
 
-- clean dist folders and build new
-  npm run clean
+## 🏰️ Compile and Run the Project
 
-- To run the compodoc
-  npm run doc
-  \*\* then check the doc on this address- http://localhost:3001/
+### 🔹 **Development Mode**
 
-## Swagger Doc
+```sh
+npm run dev
+```
 
-- Check the api doc at http://localhost:3000/api/doc
+### 🔹 **Production Mode**
+
+```sh
+npm run prod
+```
+
+### 🔹 **Clean and Rebuild**
+
+```sh
+npm run clean
+```
+
+### 🔹 **Generate Documentation (`Compodoc`)**
+
+```sh
+npm run doc
+```
+
+👉 Then access the documentation at:  
+[http://localhost:3001/](http://localhost:3001/)
+
+---
+
+## 📚 Swagger API Documentation
+
+After starting the server, access the API documentation at:  
+[http://localhost:3000/api/doc](http://localhost:3000/api/doc)
+
+---
+
+👌 **Now your project is fully configured and ready to use!** 🚀
