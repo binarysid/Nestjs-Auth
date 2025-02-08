@@ -8,7 +8,7 @@ export enum ThrottlerType {
 export class ThrottlerConfig {
   static readonly options = {
     [ThrottlerType.DEFAULT]: { ttl: 60000, limit: 8 }, // Time in miliseconds (1 minute). this is default and use by each request. // Max 8 requests per ttl per IP
-    [ThrottlerType.SHORT]: { ttl: 60000, limit: 3 },
+    [ThrottlerType.SHORT]: { ttl: 60000, limit: 5 },
     [ThrottlerType.MEDIUM]: { ttl: 60000, limit: 15 },
     [ThrottlerType.LONG]: { ttl: 60000, limit: 25 },
   };

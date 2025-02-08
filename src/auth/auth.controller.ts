@@ -6,6 +6,8 @@ import { AuthType } from './enums/auth-type.enum';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { ThrottlerConfig, ThrottlerType } from 'src/enums/throttler-type.enum';
 import { Throttle } from '@nestjs/throttler';
+import { ActiveUser } from './decorators/active-user.decorator';
+import { ActiveUserData } from './interfaces/active-user.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -25,5 +27,13 @@ export class AuthController {
   @Auth(AuthType.None)
   public async refreshToken(@Body() dto: RefreshTokenDto) {
     return await this.service.refreshToken(dto);
+  }
+
+  @Throttle(ThrottlerConfig.getOptions(ThrottlerType.SHORT))
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  public async signout(@ActiveUser() user: ActiveUserData) {
+    const userID = user['sub'];
+    return await this.service.logout(userID);
   }
 }

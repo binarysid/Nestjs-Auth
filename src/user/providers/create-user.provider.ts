@@ -28,14 +28,6 @@ export class CreateUserProvider {
   ) {}
 
   public async createUser(dto: CreateUserDto) {
-    const existingUser = await this.findUserProvider.findUserby(dto.email);
-    if (existingUser) {
-      this.logger.debug('user exists');
-      throw new BadRequestException(
-        'The user already exists, please check your email.',
-      );
-    }
-
     // Create a new user
     try {
       this.logger.debug('creating a new user');

@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from '../config/jwt.config';
@@ -7,6 +13,8 @@ import { UserService } from 'src/user/user.service';
 import { GenerateTokenProvider } from './generate-token.provider';
 import { ActiveUserData } from '../interfaces/active-user.interface';
 import { LoggerProvider } from 'src/logger/logger.provider';
+import { User } from 'src/user/user.schema';
+import { HashingProvider } from './hashing.provider';
 
 @Injectable()
 export class RefresehTokenProvider {
@@ -18,6 +26,7 @@ export class RefresehTokenProvider {
     private readonly userService: UserService,
     private readonly tokenProvider: GenerateTokenProvider,
     private readonly logger: LoggerProvider,
+    private readonly hashingProvider: HashingProvider,
   ) {}
 
   public async refreshToken(dto: RefreshTokenDto) {
@@ -32,13 +41,31 @@ export class RefresehTokenProvider {
       this.logger.debug('found user id: ', sub);
       const user = await this.userService.findUserbyID(sub);
       if (!user) {
-        throw new Error('User not found');
+        throw new NotFoundException('User not found');
       }
       this.logger.debug('found user: ', user);
-      return await this.tokenProvider.generateTokens(user);
+
+      if (!user.hashedRefreshToken) {
+        throw new UnauthorizedException('Not logged in. please log in');
+      }
+
+      const isEqual = await this.hashingProvider.compare(
+        dto.refreshToken,
+        user.hashedRefreshToken,
+      );
+      if (!isEqual) {
+        throw new UnauthorizedException('Refresh token does not match');
+      }
+
+      const { accessToken, refreshToken } =
+        await this.tokenProvider.generateTokens(user);
+      await this.userService.updateRefreshToken(user._id, refreshToken);
+      return { accessToken, refreshToken };
     } catch (error) {
       this.logger.error('refresh token error: ', error);
-      throw new Error('Could not refresh token');
+      throw new UnauthorizedException(
+        'Refresh token expired, please log in again',
+      );
     }
   }
 }

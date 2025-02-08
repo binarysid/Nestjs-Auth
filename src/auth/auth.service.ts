@@ -38,7 +38,7 @@ export class AuthService {
     this.logger.log('found user: ', user);
 
     try {
-      const hashedPass = await this.hashingProvider.hash(dto.password);
+      // const hashedPass = await this.hashingProvider.hash(dto.password);
       isEqual = await this.hashingProvider.compare(dto.password, user.password);
     } catch (error) {
       this.logger.error('Could not compare password', error);
@@ -51,12 +51,21 @@ export class AuthService {
       this.logger.error('password does not match');
       throw new UnauthorizedException('Incorrect password');
     }
-    this.logger.log('logged in success');
 
-    return await this.tokenProvider.generateTokens(user);
+    this.logger.debug('logged in success');
+    const { accessToken, refreshToken } =
+      await this.tokenProvider.generateTokens(user);
+    this.logger.debug('tokens generated');
+    await this.userService.updateRefreshToken(user._id, refreshToken);
+    this.logger.debug('tokens udpated to db');
+    return { accessToken, refreshToken };
   }
 
   public async refreshToken(dto: RefreshTokenDto) {
     return await this.refresehTokenProvider.refreshToken(dto);
+  }
+
+  public async logout(id: string) {
+    await this.userService.updateRefreshToken(id, null);
   }
 }

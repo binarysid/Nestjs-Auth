@@ -51,10 +51,11 @@ export class UserController {
 
     // if we want the whole user object rather than just the email,
     // then dont pass any argument to the @ActiveUser decorator
-    @ActiveUser('email') user: ActiveUserData,
+    @ActiveUser() user: ActiveUserData,
   ) {
-    this.logger.debug('user: ', user);
-    return dto;
+    const userID = user['sub'];
+    this.logger.debug('userID: ', user['sub']);
+    // return await this.userService.update(userID, dto);
   }
 
   @Throttle(ThrottlerConfig.getOptions(ThrottlerType.MEDIUM))

@@ -11,12 +11,13 @@ import { Request } from 'express';
 import jwtConfig from 'src/auth/config/jwt.config';
 import { REQUEST_USER_KEY } from 'src/auth/constants/auth.constants';
 import { LoggerProvider } from 'src/logger/logger.provider';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-
+    private readonly userService: UserService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly logger: LoggerProvider,

@@ -1,4 +1,8 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import {
+  Injectable,
+  RequestTimeoutException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../user.schema';
@@ -13,7 +17,7 @@ export class FindUserProvider {
   ) {}
 
   public async findUserby(email: string) {
-    let user = undefined;
+    let user = null;
     this.logger.debug('user find request: ', email);
     try {
       user = await this.userModel.findOne({ email: email });
@@ -28,16 +32,16 @@ export class FindUserProvider {
     }
 
     if (!user) {
-      this.logger.error('user does not exists');
-      // throw new UnauthorizedException('User does not exists');
+      this.logger.debug('user does not exists');
+    } else {
+      this.logger.debug('user found');
     }
 
-    this.logger.debug('user found');
     return user;
   }
 
   public async findUserbyId(id: string) {
-    let user = undefined;
+    let user = null;
     this.logger.debug('user find request: ', id);
     try {
       user = await this.userModel.findOne({ _id: id });
@@ -53,10 +57,10 @@ export class FindUserProvider {
 
     if (!user) {
       this.logger.debug('user does not exists');
-      // throw new UnauthorizedException('User does not exists');
+    } else {
+      this.logger.debug('user found');
     }
 
-    this.logger.debug('user found');
     return user;
   }
 }
