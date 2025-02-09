@@ -5,9 +5,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { User } from './user.schema';
-import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { CreateUserProvider } from './providers/create-user.provider';
@@ -17,13 +14,13 @@ import { LoggerProvider } from 'src/logger/logger.provider';
 import { UpdateUserProvider } from './providers/update-user.provider';
 import { PatchUserDto } from './dtos/patch-user.dto';
 import { HashingProvider } from 'src/auth/providers/hashing.provider';
+import { UserSession } from './user-session.schema';
+import { User } from './user.schema';
+import { RefreshTokenDto } from 'src/auth/dtos/refresh-token.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User.name)
-    private readonly userModel: Model<User>,
-
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     private readonly createUserProvider: CreateUserProvider,
@@ -55,7 +52,7 @@ export class UserService {
     return await this.findUserProvider.findUserby(email);
   }
 
-  public async findUserbyID(id: string) {
+  public async findUserbyID(id: string): Promise<User | null> {
     return await this.findUserProvider.findUserbyId(id);
   }
 
@@ -72,13 +69,27 @@ export class UserService {
     return await user.save();
   }
 
+  public async updateSession(id: string, dto: RefreshTokenDto) {
+    return await this.updateUserProvider.addSession(id, dto);
+  }
+
+  public async findSessionById(id: string): Promise<UserSession | null> {
+    return await this.findUserProvider.findSessionByUserId(id);
+  }
+
   public async updateRefreshToken(id: string, refreshToken: string | null) {
-    const user: User = await this.findUserProvider.findUserbyId(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
+    const userSession: UserSession = await this.findSessionById(id);
+    if (!userSession) {
+      throw new NotFoundException('User session not found');
     }
+
     const hashedToken = await this.hashingProvider.hash(refreshToken);
-    user.hashedRefreshToken = hashedToken;
-    return await user.save();
+    userSession.hashedRefreshToken = hashedToken;
+    return await userSession.save();
+  }
+
+  public async hasSession(userId: string): Promise<boolean> {
+    const userSession = await this.findSessionById(userId);
+    return !!userSession;
   }
 }

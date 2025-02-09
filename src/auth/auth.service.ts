@@ -10,7 +10,7 @@ import { UserService } from 'src/user/user.service';
 import { HashingProvider } from './providers/hashing.provider';
 import { GenerateTokenProvider } from './providers/generate-token.provider';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
-import { RefresehTokenProvider } from './providers/refreseh-token.provider';
+import { RefresehTokenProvider } from './providers/refresh-token.provider';
 import { LoggerProvider } from 'src/logger/logger.provider';
 
 @Injectable()
@@ -56,7 +56,12 @@ export class AuthService {
     const { accessToken, refreshToken } =
       await this.tokenProvider.generateTokens(user);
     this.logger.debug('tokens generated');
-    await this.userService.updateRefreshToken(user._id, refreshToken);
+    const tokenDto: RefreshTokenDto = {
+      refreshToken: refreshToken,
+      deviceID: '',
+      userAgent: '',
+    };
+    await this.userService.updateSession(user.id, tokenDto);
     this.logger.debug('tokens udpated to db');
     return { accessToken, refreshToken };
   }

@@ -20,12 +20,6 @@ export class User extends Document {
     isRequired: true,
   })
   password: string;
-
-  @Prop({
-    type: String,
-    default: null,
-  })
-  hashedRefreshToken: string | null;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

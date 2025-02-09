@@ -18,12 +18,8 @@ export class CreateUserProvider {
   constructor(
     @InjectModel(User.name)
     private readonly usersModel: Model<User>,
-
     @Inject(forwardRef(() => HashingProvider))
     private readonly hashingProvider: HashingProvider,
-
-    private readonly findUserProvider: FindUserProvider,
-
     private readonly logger: LoggerProvider,
   ) {}
 

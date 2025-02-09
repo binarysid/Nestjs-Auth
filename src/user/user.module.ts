@@ -9,10 +9,14 @@ import { FindUserProvider } from './providers/find-user.provider';
 import { UpdateUserProvider } from './providers/update-user.provider';
 import { HashingProvider } from 'src/auth/providers/hashing.provider';
 import { BcryptProvider } from 'src/auth/providers/bcrypt.provider';
+import { UserSession, UserSessionSchema } from './user-session.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: UserSession.name, schema: UserSessionSchema },
+    ]),
     forwardRef(() => AuthModule),
   ],
   controllers: [UserController],

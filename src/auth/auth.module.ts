@@ -7,7 +7,7 @@ import { UserModule } from 'src/user/user.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { GenerateTokenProvider } from './providers/generate-token.provider';
-import { RefresehTokenProvider } from './providers/refreseh-token.provider';
+import { RefresehTokenProvider } from './providers/refresh-token.provider';
 import jwtConfig from './config/jwt.config';
 
 @Module({

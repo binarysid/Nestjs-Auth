@@ -1,5 +1,4 @@
 import { Injectable, OnModuleInit, Scope } from '@nestjs/common';
-import { ThrottlerType } from 'src/enums/throttler-type.enum';
 import { Environment } from 'src/Environment.enum';
 
 @Injectable()
