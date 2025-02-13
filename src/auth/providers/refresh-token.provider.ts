@@ -72,7 +72,10 @@ export class RefresehTokenProvider {
 
       const { accessToken, refreshToken } =
         await this.tokenProvider.generateTokens(user);
-      await this.userService.updateRefreshToken(sub, refreshToken);
+      this.logger.debug('tokens generated');
+      userSession.hashedRefreshToken =
+        await this.hashingProvider.hash(refreshToken);
+      await userSession.save();
       this.logger.debug('refresh tokens updated to db');
       return { accessToken, refreshToken };
     } catch (error) {

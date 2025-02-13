@@ -33,6 +33,13 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User does not exists');
     }
+    const hasActiveSession = await this.userService.hasSession(user.id);
+    if (hasActiveSession) {
+      this.logger.debug('User already logged in');
+      throw new UnauthorizedException(
+        'User already logged in. Please logout from the device you are singed in',
+      );
+    }
 
     let isEqual = false;
     this.logger.log('found user: ', user);
@@ -62,7 +69,7 @@ export class AuthService {
       userAgent: '',
     };
     await this.userService.updateSession(user.id, tokenDto);
-    this.logger.debug('tokens udpated to db');
+    this.logger.debug('signin process completed');
     return { accessToken, refreshToken };
   }
 

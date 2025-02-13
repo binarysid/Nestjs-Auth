@@ -40,7 +40,7 @@ export class UserService {
   public async create(dto: CreateUserDto) {
     const existingUser = await this.findUserProvider.findUserby(dto.email);
     if (existingUser) {
-      this.logger.debug('user exists');
+      this.logger.debug('The user already exists, please check your email.');
       throw new BadRequestException(
         'The user already exists, please check your email.',
       );
@@ -83,13 +83,21 @@ export class UserService {
       throw new NotFoundException('User session not found');
     }
 
-    const hashedToken = await this.hashingProvider.hash(refreshToken);
-    userSession.hashedRefreshToken = hashedToken;
+    userSession.hashedRefreshToken = refreshToken
+      ? await this.hashingProvider.hash(refreshToken)
+      : null;
     return await userSession.save();
   }
 
   public async hasSession(userId: string): Promise<boolean> {
-    const userSession = await this.findSessionById(userId);
-    return !!userSession;
+    const userSession: UserSession = await this.findSessionById(userId);
+    this.logger.debug('userSession:', userSession);
+    this.logger.debug('hashedRefreshToken:', userSession?.hashedRefreshToken);
+    this.logger.debug(
+      'hashedRefreshToken check:',
+      !!userSession && userSession.hashedRefreshToken !== null,
+    );
+
+    return !!userSession && userSession.hashedRefreshToken !== null;
   }
 }

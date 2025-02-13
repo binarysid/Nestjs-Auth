@@ -42,34 +42,56 @@ export class UpdateUserProvider {
   }
 
   public async addSession(
-    id: string,
+    userId: string,
     dto: RefreshTokenDto,
   ): Promise<UserSession> {
-    const existingSession = await this.findUserProvider.findSessionByUserId(id);
+    const existingSession =
+      await this.findUserProvider.findSessionByUserId(userId);
     if (existingSession) {
-      return await this.updateSession(id, dto);
+      this.logger.debug('session exists, updating');
+      return await this.updateSession(userId, dto);
     } else {
-      return await this.createSession(dto);
+      this.logger.debug('session does not exist, creating');
+      return await this.createSession(userId, dto);
     }
   }
 
   async updateSession(id: string, dto: RefreshTokenDto): Promise<UserSession> {
-    // Filter out undefined fields before updating
-    const updateData = Object.fromEntries(
-      Object.entries(dto).filter(([_, value]) => value !== undefined),
-    );
+    try {
+      if (dto.refreshToken) {
+        dto.refreshToken = await this.hashingProvider.hash(dto.refreshToken);
+        this.logger.debug('hashed refresh token for session update');
+      }
+      // Filter out undefined fields before updating
+      const updateData = Object.fromEntries(
+        Object.entries(dto).filter(([_, value]) => value !== undefined),
+      );
 
-    return await this.userSessionModel.findByIdAndUpdate(id, updateData, {
-      new: true,
-    });
+      return await this.userSessionModel.findByIdAndUpdate(id, updateData, {
+        new: true,
+      });
+    } catch (error) {
+      this.logger.error('session update error');
+      throw new RequestTimeoutException(
+        'Unable to process your request at the moment please try later',
+        {
+          description: 'Error connecting to the the datbase',
+        },
+      );
+    }
   }
 
-  async createSession(dto: RefreshTokenDto): Promise<UserSession> {
+  async createSession(
+    userId: string,
+    dto: RefreshTokenDto,
+  ): Promise<UserSession> {
     try {
-      this.logger.debug('creating a new user');
+      this.logger.debug('creating a new session');
       const newSession = await this.userSessionModel.create({
-        ...dto,
-        refreshToken: await this.hashingProvider.hash(dto.refreshToken),
+        user: userId, // Include user ID
+        hashedRefreshToken: await this.hashingProvider.hash(dto.refreshToken),
+        deviceID: dto.deviceID,
+        userAgent: dto.userAgent,
       });
       this.logger.debug('new session created');
       return newSession;
