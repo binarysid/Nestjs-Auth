@@ -12,6 +12,7 @@ import { GenerateTokenProvider } from './providers/generate-token.provider';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { RefresehTokenProvider } from './providers/refresh-token.provider';
 import { LoggerProvider } from 'src/logger/logger.provider';
+import { User } from 'src/user/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -29,16 +30,29 @@ export class AuthService {
   ) {}
 
   public async signIn(dto: SignInUserDto) {
-    const user = await this.userService.findUserby(dto.email);
+    const user: User = await this.userService.findUserby(dto.email);
     if (!user) {
       throw new UnauthorizedException('User does not exists');
     }
+
+    // if (!user.isVerified) {
+    //   this.logger.error('User is not verified');
+    //   throw new UnauthorizedException('User is not verified');
+    // }
+
     const hasActiveSession = await this.userService.hasSession(user.id);
     if (hasActiveSession) {
       this.logger.debug('User already logged in');
-      throw new UnauthorizedException(
-        'User already logged in. Please logout from the device you are singed in',
-      );
+      // the exception is not thrown here. Cause there are some constraint in logout
+      // during logout if the refreshtoken expires then the user will not be able clear the session
+      // which causes the session to never be cleared
+      // And as a result if we throw exception here the user will never be able to login again
+      // so instead of throwing exception, we will clear the session here after this block
+      // this block only exists to log the message and may be future handling
+
+      // throw new UnauthorizedException(
+      //   'User already logged in. Please logout from the device you are singed in',
+      // );
     }
 
     let isEqual = false;
@@ -77,7 +91,7 @@ export class AuthService {
     return await this.refresehTokenProvider.refreshToken(dto);
   }
 
-  public async logout(id: string) {
-    await this.userService.updateRefreshToken(id, null);
+  public async logout(dto: RefreshTokenDto) {
+    await this.userService.updateRefreshToken(dto);
   }
 }

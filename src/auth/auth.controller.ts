@@ -32,8 +32,8 @@ export class AuthController {
   @Throttle(ThrottlerConfig.getOptions(ThrottlerType.SHORT))
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  public async signout(@ActiveUser() user: ActiveUserData) {
-    const userID = user['sub'];
-    return await this.service.logout(userID);
+  @Auth(AuthType.None)
+  public async signout(@Body() dto: RefreshTokenDto) {
+    return await this.service.logout(dto);
   }
 }

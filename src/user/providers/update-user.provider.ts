@@ -12,6 +12,7 @@ import { RefreshTokenDto } from 'src/auth/dtos/refresh-token.dto';
 import { UserSession } from '../user-session.schema';
 import { LoggerProvider } from 'src/logger/logger.provider';
 import { HashingProvider } from 'src/auth/providers/hashing.provider';
+import { VerifyUserDto } from '../dtos/verify-user.dto';
 
 @Injectable()
 export class UpdateUserProvider {
@@ -103,6 +104,18 @@ export class UpdateUserProvider {
           description: 'Error connecting to the the datbase',
         },
       );
+    }
+  }
+
+  public async updateUserVerificationStatus(dto: VerifyUserDto): Promise<User> {
+    const existingUser: User = await this.findUserProvider.findUserbyId(dto.id);
+    if (existingUser) {
+      existingUser.isVerified = true;
+      this.logger.debug('user verification completed');
+      return await existingUser.save();
+    } else {
+      this.logger.error('User not found while verification');
+      throw new NotFoundException('User not found');
     }
   }
 }

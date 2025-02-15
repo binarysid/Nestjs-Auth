@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class RefreshTokenDto {
   @IsString()
@@ -6,8 +6,10 @@ export class RefreshTokenDto {
   refreshToken: string;
 
   @IsString()
+  @IsOptional()
   deviceID: string;
 
   @IsString()
+  @IsOptional()
   userAgent: string;
 }

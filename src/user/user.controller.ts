@@ -3,6 +3,8 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -21,6 +23,8 @@ import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { GetUsersParamDto } from './dtos/get-user-param.dto';
 import { Throttle } from '@nestjs/throttler';
 import { ThrottlerConfig, ThrottlerType } from 'src/enums/throttler-type.enum';
+import { Verify } from 'crypto';
+import { VerifyUserDto } from './dtos/verify-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -34,6 +38,20 @@ export class UserController {
   @Auth(AuthType.None) // here we can pass multiple types with comma separated values. but if one of the type is None/public, the entire route becomes public
   public async create(@Body() dto: CreateUserDto) {
     return this.userService.create(dto);
+  }
+
+  @Throttle(ThrottlerConfig.getOptions(ThrottlerType.SHORT))
+  @Post('verify')
+  @HttpCode(HttpStatus.OK)
+  @Auth(AuthType.None) // here we can pass multiple types with comma separated values. but if one of the type is None/public, the entire route becomes public
+  public async verify(@Body() dto: VerifyUserDto) {
+    const user = await this.userService.verify(dto);
+    if (user) {
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'User verified successfully',
+      };
+    }
   }
 
   @Throttle(ThrottlerConfig.getOptions(ThrottlerType.LONG))
@@ -55,7 +73,7 @@ export class UserController {
   ) {
     const userID = user['sub'];
     this.logger.debug('userID: ', user['sub']);
-    // return await this.userService.update(userID, dto);
+    return await this.userService.update(userID, dto);
   }
 
   @Throttle(ThrottlerConfig.getOptions(ThrottlerType.MEDIUM))

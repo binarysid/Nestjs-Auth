@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsString,
@@ -34,4 +35,7 @@ export class CreateUserDto {
       'Minimum eight characters, at least one letter, one number and one special character',
   })
   password: string;
+
+  @IsBoolean()
+  isVerified: boolean = false;
 }

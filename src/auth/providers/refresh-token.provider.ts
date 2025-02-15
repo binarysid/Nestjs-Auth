@@ -47,6 +47,11 @@ export class RefresehTokenProvider {
       }
       this.logger.debug('found user: ', user);
 
+      // if (!user.isVerified) {
+      //   this.logger.error('User is not verified');
+      //   throw new UnauthorizedException('User is not verified');
+      // }
+
       const userSession = await this.userService.findSessionById(sub);
       if (!userSession) {
         this.logger.error('User session not found');

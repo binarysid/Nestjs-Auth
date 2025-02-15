@@ -34,7 +34,7 @@ export class AuthenticationGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     this.logger.setRequest(request);
-    this.logger.debug('Authentication Guard activation');
+    this.logger.debug('\nAuthentication Guard activation');
     // Print authTypeGuardMap
     const authTypes = this.reflector.getAllAndOverride(AUTH_TYPE_KEY, [
       context.getHandler(),
