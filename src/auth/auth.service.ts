@@ -10,7 +10,6 @@ import { UserService } from 'src/user/user.service';
 import { HashingProvider } from './providers/hashing.provider';
 import { GenerateTokenProvider } from './providers/generate-token.provider';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
-import { RefresehTokenProvider } from './providers/refresh-token.provider';
 import { LoggerProvider } from 'src/logger/logger.provider';
 import { User } from 'src/user/user.schema';
 
@@ -19,13 +18,8 @@ export class AuthService {
   constructor(
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-
     private readonly hashingProvider: HashingProvider,
-
     private readonly tokenProvider: GenerateTokenProvider,
-
-    private readonly refresehTokenProvider: RefresehTokenProvider,
-
     private readonly logger: LoggerProvider,
   ) {}
 
@@ -43,16 +37,9 @@ export class AuthService {
     const hasActiveSession = await this.userService.hasSession(user.id);
     if (hasActiveSession) {
       this.logger.debug('User already logged in');
-      // the exception is not thrown here. Cause there are some constraint in logout
-      // during logout if the refreshtoken expires then the user will not be able clear the session
-      // which causes the session to never be cleared
-      // And as a result if we throw exception here the user will never be able to login again
-      // so instead of throwing exception, we will clear the session here after this block
-      // this block only exists to log the message and may be future handling
-
-      // throw new UnauthorizedException(
-      //   'User already logged in. Please logout from the device you are singed in',
-      // );
+      throw new UnauthorizedException(
+        'User already logged in. Please logout from any device that you are singed in',
+      );
     }
 
     let isEqual = false;
@@ -88,10 +75,10 @@ export class AuthService {
   }
 
   public async refreshToken(dto: RefreshTokenDto) {
-    return await this.refresehTokenProvider.refreshToken(dto);
+    return await this.userService.refreshToken(dto);
   }
 
   public async logout(dto: RefreshTokenDto) {
-    await this.userService.updateRefreshToken(dto);
+    return await this.userService.removeSession(dto);
   }
 }

@@ -5,15 +5,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { RefreshTokenDto } from '../dtos/refresh-token.dto';
+
 import { JwtService } from '@nestjs/jwt';
-import jwtConfig from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
-import { GenerateTokenProvider } from './generate-token.provider';
-import { ActiveUserData } from '../interfaces/active-user.interface';
 import { LoggerProvider } from 'src/logger/logger.provider';
-import { HashingProvider } from './hashing.provider';
+import { UserSessionProvider } from 'src/user/providers/user-session.provider';
+import jwtConfig from 'src/auth/config/jwt.config';
+import { GenerateTokenProvider } from 'src/auth/providers/generate-token.provider';
+import { HashingProvider } from 'src/auth/providers/hashing.provider';
+import { ActiveUserData } from 'src/auth/interfaces/active-user.interface';
+import { RefreshTokenDto } from 'src/auth/dtos/refresh-token.dto';
 
 @Injectable()
 export class RefresehTokenProvider {
@@ -26,25 +28,44 @@ export class RefresehTokenProvider {
     private readonly tokenProvider: GenerateTokenProvider,
     private readonly logger: LoggerProvider,
     private readonly hashingProvider: HashingProvider,
+    private readonly userSessionProvider: UserSessionProvider,
   ) {}
 
-  public async refreshToken(dto: RefreshTokenDto) {
+  public async verify(refreshToken: string) {
     try {
       const { sub } = await this.jwtService.verifyAsync<
         Pick<ActiveUserData, 'sub'>
-      >(dto.refreshToken, {
+      >(refreshToken, {
         secret: this.jwtConfiguration.secret,
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
       });
       this.logger.debug('refresh token verified');
+      return sub;
+    } catch (error) {
+      this.logger.error('Refresh token expired: ', error);
+      return null;
+    }
+  }
 
-      const user = await this.userService.findUserbyID(sub);
-      this.logger.debug('found user id: ', sub);
+  public async refreshToken(dto: RefreshTokenDto) {
+    try {
+      const userID = await this.verify(dto.refreshToken);
+      if (!userID) {
+        this.logger.error('session token expired');
+        await this.userSessionProvider.deactive(dto.refreshToken, null);
+        throw new UnauthorizedException('session token expired');
+      }
+
+      this.logger.debug('refresh token verified');
+
+      const user = await this.userService.findUserbyID(userID);
+      this.logger.debug('found user id: ', userID);
       if (!user) {
         this.logger.error('User not found');
         throw new NotFoundException('User not found');
       }
+
       this.logger.debug('found user: ', user);
 
       // if (!user.isVerified) {
@@ -52,7 +73,7 @@ export class RefresehTokenProvider {
       //   throw new UnauthorizedException('User is not verified');
       // }
 
-      const userSession = await this.userService.findSessionById(sub);
+      const userSession = await this.userService.findSessionById(userID);
       if (!userSession) {
         this.logger.error('User session not found');
         throw new NotFoundException('User session not found');
@@ -81,12 +102,17 @@ export class RefresehTokenProvider {
       userSession.hashedRefreshToken =
         await this.hashingProvider.hash(refreshToken);
       await userSession.save();
-      this.logger.debug('refresh tokens updated to db');
+      this.logger.debug('refresh token updated to db: ', refreshToken);
+      this.logger.debug(
+        'hashed refresh token updated to db: ',
+        userSession.hashedRefreshToken,
+      );
       return { accessToken, refreshToken };
     } catch (error) {
-      this.logger.error('refresh token error: ', error);
+      this.logger.error('refresh token generation error: ', error);
       throw new UnauthorizedException(
-        'Refresh token expired, please log in again',
+        'refresh token generation error: ',
+        error,
       );
     }
   }

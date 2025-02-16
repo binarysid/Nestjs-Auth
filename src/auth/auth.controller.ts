@@ -8,6 +8,7 @@ import { ThrottlerConfig, ThrottlerType } from 'src/enums/throttler-type.enum';
 import { Throttle } from '@nestjs/throttler';
 import { ActiveUser } from './decorators/active-user.decorator';
 import { ActiveUserData } from './interfaces/active-user.interface';
+import { stat } from 'fs';
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +35,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Auth(AuthType.None)
   public async signout(@Body() dto: RefreshTokenDto) {
-    return await this.service.logout(dto);
+    const session = await this.service.logout(dto);
+    return { message: 'signout success', status: HttpStatus.OK };
   }
 }

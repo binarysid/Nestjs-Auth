@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -10,7 +9,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../user.schema';
 import { HashingProvider } from 'src/auth/providers/hashing.provider';
-import { FindUserProvider } from './find-user.provider';
 import { LoggerProvider } from 'src/logger/logger.provider';
 
 @Injectable()

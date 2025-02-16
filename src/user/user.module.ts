@@ -13,6 +13,9 @@ import { UserSession, UserSessionSchema } from './user-session.schema';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from 'src/auth/config/jwt.config';
+import { UserSessionProvider } from './providers/user-session.provider';
+import { RefresehTokenProvider } from './providers/refresh-token.provider';
+import { GenerateTokenProvider } from 'src/auth/providers/generate-token.provider';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import jwtConfig from 'src/auth/config/jwt.config';
     CreateUserProvider,
     FindUserProvider,
     UpdateUserProvider,
+    RefresehTokenProvider,
+    UserSessionProvider,
+    GenerateTokenProvider,
     {
       provide: HashingProvider,
       useClass: BcryptProvider,

@@ -23,7 +23,6 @@ import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { GetUsersParamDto } from './dtos/get-user-param.dto';
 import { Throttle } from '@nestjs/throttler';
 import { ThrottlerConfig, ThrottlerType } from 'src/enums/throttler-type.enum';
-import { Verify } from 'crypto';
 import { VerifyUserDto } from './dtos/verify-user.dto';
 
 @Controller('user')
