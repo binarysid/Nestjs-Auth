@@ -114,26 +114,35 @@ export class UserService {
         'hashed refresh token: ',
         userSession.hashedRefreshToken,
       );
-      let isEqual = false;
-      try {
-        isEqual = await this.hashingProvider.compare(
-          dto.refreshToken,
-          userSession.hashedRefreshToken,
-        );
-      } catch (error) {
-        this.logger.error('Could not compare password', error);
-        throw new RequestTimeoutException(error, {
-          description: 'Could not compare password',
-        });
-      }
-      this.logger.debug('isEqual: ', isEqual);
 
-      if (!isEqual) {
-        this.logger.error('refresh token not found in the session');
+      if (dto.refreshToken !== userSession.hashedRefreshToken) {
+        this.logger.error(
+          'refresh token doesnot match with the stored session token',
+        );
         throw new UnauthorizedException(
-          'refresh token not found in the session',
+          'refresh token doesnot match with the stored session token',
         );
       }
+      // let isEqual = false;
+      // try {
+      //   isEqual = await this.hashingProvider.compare(
+      //     dto.refreshToken,
+      //     userSession.hashedRefreshToken,
+      //   );
+      // } catch (error) {
+      //   this.logger.error('Could not compare password', error);
+      //   throw new RequestTimeoutException(error, {
+      //     description: 'Could not compare password',
+      //   });
+      // }
+      // this.logger.debug('isEqual: ', isEqual);
+
+      // if (!isEqual) {
+      //   this.logger.error('refresh token not found in the session');
+      //   throw new UnauthorizedException(
+      //     'refresh token not found in the session',
+      //   );
+      // }
 
       this.logger.debug('session token found');
       userSession.hashedRefreshToken = null;
@@ -143,10 +152,8 @@ export class UserService {
       );
       return await userSession.save();
     } catch (error) {
-      this.logger.error('Refresh token expired: ', error);
-      throw new UnauthorizedException(
-        'Refresh token expired, please log in again',
-      );
+      this.logger.error('Refresh token error: ', error);
+      throw new UnauthorizedException('Refresh token error: ', error);
     }
   }
 

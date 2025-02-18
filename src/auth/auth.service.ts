@@ -46,7 +46,6 @@ export class AuthService {
     this.logger.log('found user: ', user);
 
     try {
-      // const hashedPass = await this.hashingProvider.hash(dto.password);
       isEqual = await this.hashingProvider.compare(dto.password, user.password);
     } catch (error) {
       this.logger.error('Could not compare password', error);
@@ -66,8 +65,8 @@ export class AuthService {
     this.logger.debug('tokens generated');
     const tokenDto: RefreshTokenDto = {
       refreshToken: refreshToken,
-      deviceID: '',
-      userAgent: '',
+      deviceID: null,
+      userAgent: null,
     };
     await this.userService.updateSession(user.id, tokenDto);
     this.logger.debug('signin process completed');

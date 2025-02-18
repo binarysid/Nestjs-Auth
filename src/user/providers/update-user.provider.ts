@@ -59,26 +59,18 @@ export class UpdateUserProvider {
 
   async updateSession(id: string, dto: RefreshTokenDto): Promise<UserSession> {
     try {
-      if (dto.refreshToken) {
-        this.logger.debug('refresh token: ', dto.refreshToken);
-        dto.refreshToken = await this.hashingProvider.hash(dto.refreshToken);
-        this.logger.debug('hashed refresh token: ', dto.refreshToken);
-      }
+      // if (dto.refreshToken) {
+      //   this.logger.debug('refresh token: ', dto.refreshToken);
+      //   dto.refreshToken = await this.hashingProvider.hash(dto.refreshToken);
+      //   this.logger.debug('hashed refresh token: ', dto.refreshToken);
+      // }
       // Filter out undefined fields before updating
-      const updateData = Object.fromEntries(
-        Object.entries({
-          ...dto,
-          hashedRefreshToken: dto.refreshToken || null,
-          deviceID: dto.deviceID || null,
-          userAgent: dto.userAgent || null,
-        }).filter(([_, value]) => value !== null),
-      );
-      this.logger.debug('updating session data ', updateData);
-      return await this.userSessionModel.findOneAndUpdate(
-        { user: id },
-        updateData,
-        { new: true }, // `new: true` returns updated doc
-      );
+
+      const session = await this.findUserProvider.findSessionByUserId(id);
+      session.hashedRefreshToken = dto.refreshToken;
+      session.deviceID = dto.deviceID;
+      session.userAgent = dto.userAgent;
+      return await session.save();
     } catch (error) {
       this.logger.error('session update error');
       throw new RequestTimeoutException(
@@ -98,7 +90,8 @@ export class UpdateUserProvider {
       this.logger.debug('creating a new session');
       const newSession = await this.userSessionModel.create({
         user: userId, // Include user ID
-        hashedRefreshToken: await this.hashingProvider.hash(dto.refreshToken),
+        // hashedRefreshToken: await this.hashingProvider.hash(dto.refreshToken),
+        hashedRefreshToken: dto.refreshToken,
         deviceID: dto.deviceID,
         userAgent: dto.userAgent,
       });

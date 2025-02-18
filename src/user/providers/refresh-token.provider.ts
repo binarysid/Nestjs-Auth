@@ -85,11 +85,11 @@ export class RefresehTokenProvider {
         throw new UnauthorizedException('Not logged in. please log in');
       }
 
-      const isEqual = await this.hashingProvider.compare(
-        dto.refreshToken,
-        userSession.hashedRefreshToken,
-      );
-      if (!isEqual) {
+      //   const isEqual = await this.hashingProvider.compare(
+      //     dto.refreshToken,
+      //     userSession.hashedRefreshToken,
+      //   );
+      if (dto.refreshToken !== userSession.hashedRefreshToken) {
         this.logger.error('Refresh token does not match');
         throw new UnauthorizedException('Refresh token does not match');
       }
@@ -98,13 +98,12 @@ export class RefresehTokenProvider {
 
       const { accessToken, refreshToken } =
         await this.tokenProvider.generateTokens(user);
-      this.logger.debug('tokens generated');
-      userSession.hashedRefreshToken =
-        await this.hashingProvider.hash(refreshToken);
+      this.logger.debug('new tokens generated', refreshToken);
+      userSession.hashedRefreshToken = refreshToken;
       await userSession.save();
-      this.logger.debug('refresh token updated to db: ', refreshToken);
+      this.logger.debug('refresh token updated to db');
       this.logger.debug(
-        'hashed refresh token updated to db: ',
+        'hashed refresh token: ',
         userSession.hashedRefreshToken,
       );
       return { accessToken, refreshToken };

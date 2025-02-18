@@ -21,9 +21,8 @@ export class UserSessionProvider {
     userID?: string,
   ): Promise<UserSession> {
     if (refreshToken) {
-      const hashedRefreshToken = await this.hashingProvider.hash(refreshToken);
-      const session: UserSession =
-        await this.findSessionByToken(hashedRefreshToken);
+      //   const hashedRefreshToken = await this.hashingProvider.hash(refreshToken);
+      const session: UserSession = await this.findSessionByToken(refreshToken);
       if (!session) {
         this.logger.error('refresh token not found in session');
         throw new UnauthorizedException('refresh token not found in session');
