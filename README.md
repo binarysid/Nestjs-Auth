@@ -144,4 +144,143 @@ After starting the server, access the API documentation at:
 
 ---
 
+## API Implementation Guide
+
+This section provides an overview of the API implementation, including details on authentication, token usage, session management, and how to integrate the API into your project. It is intended for both backend developers implementing the API and frontend developers consuming it.
+
+---
+
+### 1. **SignUp**
+
+The SignUp API allows users to register with the system. The current implementation requires the following fields:
+
+- `name`
+- `email`
+- `password`
+
+These fields are defined in the `UserSchema` and `CreateUserDto`. If additional fields are required, the backend developer must add them to these entities.
+
+#### For Backend Developers:
+
+- Modify `UserSchema` and `CreateUserDto` to include additional fields if needed.
+- Ensure validation rules are updated accordingly.
+
+#### For Frontend Developers:
+
+- Send a `POST` request to the `/user/register` endpoint with the required fields (`name`, `email`, `password`).
+- Handle the response to confirm successful registration.
+
+---
+
+### 2. **Login and Authentication**
+
+Upon successful login, the API returns two tokens:
+
+- **Access Token**: Used for authenticated requests.
+- **Refresh Token**: Used to obtain a new access token when the current one expires.
+
+Both tokens have a Time-To-Live (TTL) configured in the `.env` file. These values can be adjusted based on system requirements.
+
+#### For Backend Developers:
+
+- Configure token TTL in the `.env` file:
+  ```env
+  JWT_ACCESS_TOKEN_EXPIRATION=3600 # 1 hour
+  JWT_REFRESH_TOKEN_EXPIRATION=86400 # 24 hours
+  JWT_SECRET=generate_this_secret
+  ```
+
+#### For Frontend Developers:
+
+- Save both tokens securely (e.g., in HTTP-only cookies or local storage).
+- Use the access token in the `Authorization` header for authenticated requests:
+  ```http
+  Authorization: Bearer <access_token>
+  ```
+- When the access token expires, call the `/auth/refresh-token` endpoint with the refresh token to obtain a new access token.
+
+---
+
+### 3. **Verification**
+
+After registration, the backend developer must implement a verification mechanism (e.g., email or SMS verification). By default, the `isVerified` field in the `UserSchema` is set to `false`. Once verification is successful, this field is updated to `true`.
+
+#### For Backend Developers:
+
+- Uncomment the `isVerified` check in the `AuthService` and `RefreshTokenProvider` once the verification process is implemented.
+- Implement the verification logic (e.g., send an email with a verification link).
+
+#### For Frontend Developers:
+
+- Call the `/auth/verify` endpoint to verify the user after registration.
+- Handle the response to confirm successful verification.
+
+---
+
+### 4. **Token Usage**
+
+Tokens are central to the authentication system:
+
+- **Access Token**: Required in the `Authorization` header for all authenticated API requests.
+- **Refresh Token**: Used to obtain a new access token when the current one expires.
+
+#### For Frontend Developers:
+
+- Include the access token in the `Authorization` header for authenticated requests:
+  ```http
+  Authorization: Bearer <access_token>
+  ```
+- When the access token expires, call the `/auth/refresh-token` endpoint with the refresh token to obtain a new access token and refresh token.
+- Replace the old tokens with the new ones and save them securely.
+
+---
+
+### 5. **Session Management**
+
+The system uses refresh tokens for session management. The `UserSession` schema stores session data by hashing the refresh token (hashing is currently commented out due to an issue under investigation).
+
+#### Key Features:
+
+- **Single Active Session**: Only one active session is allowed per user. If a user logs in from a new device, the previous session is invalidated.
+- **Logout**: When a user logs out, the refresh token is cleared from the session, effectively ending the session.
+- **Invalid Sessions**: If a user attempts to refresh tokens with an invalid or expired refresh token, the session is cleared, and the user must log in again.
+
+#### For Backend Developers:
+
+- Investigate and resolve the refresh token hashing issue in the `UserSession` schema.
+- Ensure session management logic aligns with system requirements.
+
+#### For Frontend Developers:
+
+- Call the `/auth/logout` endpoint to log out the user and clear the session.
+- Handle session expiration gracefully by redirecting the user to the login page.
+
+---
+
+### 6. **API Collection**
+
+A Postman collection containing all Auth/User APIs is available for reference. The collection is registered with `linkon.devin@gmail.com`. To access the collection:
+
+1. Visit the following link:  
+   [Postman Collection](https://web.postman.co/workspace/My-Workspace~4f16982a-b2cc-4651-83ef-b94e1ce092a9/collection/37686044-df531590-4459-49c5-94de-43f73457a0bf)
+2. Request access permission to view and use the collection.
+
+---
+
+### Summary of Endpoints
+
+| Endpoint              | Method | Description                      |
+| --------------------- | ------ | -------------------------------- |
+| `/user/register`      | POST   | Register a new user              |
+| `/auth/login`         | POST   | Log in and obtain tokens         |
+| `/auth/refresh-token` | POST   | Obtain a new access token        |
+| `/auth/logout`        | POST   | Log out and clear the session    |
+| `/auth/verify`        | POST   | Verify a user after registration |
+
+---
+
+This section provides a comprehensive guide for integrating and consuming the authentication API. For further details, refer to the API documentation or the Postman collection.
+
+---
+
 👌 **Now your project is fully configured and ready to use!** 🚀

@@ -16,6 +16,7 @@ import { GenerateTokenProvider } from 'src/auth/providers/generate-token.provide
 import { HashingProvider } from 'src/auth/providers/hashing.provider';
 import { ActiveUserData } from 'src/auth/interfaces/active-user.interface';
 import { RefreshTokenDto } from 'src/auth/dtos/refresh-token.dto';
+import { ErrorConstant } from 'src/constants.ts/error.constant';
 
 @Injectable()
 export class RefresehTokenProvider {
@@ -43,7 +44,7 @@ export class RefresehTokenProvider {
       this.logger.debug('refresh token verified');
       return sub;
     } catch (error) {
-      this.logger.error('Refresh token expired: ', error);
+      this.logger.error(ErrorConstant.SESSION_TOKEN_EXPIRED, error);
       return null;
     }
   }
@@ -52,9 +53,9 @@ export class RefresehTokenProvider {
     try {
       const userID = await this.verify(dto.refreshToken);
       if (!userID) {
-        this.logger.error('session token expired');
+        this.logger.error(ErrorConstant.SESSION_TOKEN_EXPIRED);
         await this.userSessionProvider.deactive(dto.refreshToken, null);
-        throw new UnauthorizedException('session token expired');
+        throw new UnauthorizedException(ErrorConstant.SESSION_TOKEN_EXPIRED);
       }
 
       this.logger.debug('refresh token verified');
@@ -62,8 +63,8 @@ export class RefresehTokenProvider {
       const user = await this.userService.findUserbyID(userID);
       this.logger.debug('found user id: ', userID);
       if (!user) {
-        this.logger.error('User not found');
-        throw new NotFoundException('User not found');
+        this.logger.error(ErrorConstant.USER_NOT_FOUND);
+        throw new NotFoundException(ErrorConstant.USER_NOT_FOUND);
       }
 
       this.logger.debug('found user: ', user);
@@ -75,14 +76,14 @@ export class RefresehTokenProvider {
 
       const userSession = await this.userService.findSessionById(userID);
       if (!userSession) {
-        this.logger.error('User session not found');
-        throw new NotFoundException('User session not found');
+        this.logger.error(ErrorConstant.SESSION_NOT_FOUND);
+        throw new NotFoundException(ErrorConstant.SESSION_NOT_FOUND);
       }
       this.logger.debug('found user session: ', userSession);
 
       if (!userSession.hashedRefreshToken) {
-        this.logger.error('Not logged in. please log in');
-        throw new UnauthorizedException('Not logged in. please log in');
+        this.logger.error(ErrorConstant.SESSION_TOKEN_NOT_FOUND);
+        throw new UnauthorizedException(ErrorConstant.SESSION_TOKEN_NOT_FOUND);
       }
 
       //   const isEqual = await this.hashingProvider.compare(
@@ -90,8 +91,10 @@ export class RefresehTokenProvider {
       //     userSession.hashedRefreshToken,
       //   );
       if (dto.refreshToken !== userSession.hashedRefreshToken) {
-        this.logger.error('Refresh token does not match');
-        throw new UnauthorizedException('Refresh token does not match');
+        this.logger.error(ErrorConstant.SESSION_TOKEN_DOES_NOT_MATCH);
+        throw new UnauthorizedException(
+          ErrorConstant.SESSION_TOKEN_DOES_NOT_MATCH,
+        );
       }
 
       this.logger.debug('refresh tokens matched. Ready to generate new tokens');
@@ -108,9 +111,9 @@ export class RefresehTokenProvider {
       );
       return { accessToken, refreshToken };
     } catch (error) {
-      this.logger.error('refresh token generation error: ', error);
+      this.logger.error(ErrorConstant.SESSION_TOKEN_GENERATION, error);
       throw new UnauthorizedException(
-        'refresh token generation error: ',
+        ErrorConstant.SESSION_TOKEN_GENERATION,
         error,
       );
     }

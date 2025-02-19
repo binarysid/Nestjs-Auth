@@ -13,6 +13,7 @@ import { UserSession } from '../user-session.schema';
 import { LoggerProvider } from 'src/logger/logger.provider';
 import { HashingProvider } from 'src/auth/providers/hashing.provider';
 import { VerifyUserDto } from '../dtos/verify-user.dto';
+import { ErrorConstant } from 'src/constants.ts/error.constant';
 
 @Injectable()
 export class UpdateUserProvider {
@@ -38,7 +39,7 @@ export class UpdateUserProvider {
         new: true,
       });
     } else {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(ErrorConstant.USER_NOT_FOUND);
     }
   }
 
