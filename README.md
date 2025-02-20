@@ -241,7 +241,7 @@ The system uses refresh tokens for session management. The `UserSession` schema 
 
 #### Key Features:
 
-- **Single Active Session**: Only one active session is allowed per user. If a user logs in from a new device, the previous session is invalidated.
+- **Single Active Session**: Only one active session is allowed per user. If a user is already logged in on a device and tries to log in from another device, it wont allow to login before it logs out from the first device.
 - **Logout**: When a user logs out, the refresh token is cleared from the session, effectively ending the session.
 - **Invalid Sessions**: If a user attempts to refresh tokens with an invalid or expired refresh token, the session is cleared, and the user must log in again.
 
@@ -275,7 +275,7 @@ A Postman collection containing all Auth/User APIs is available for reference. T
 | `/auth/login`         | POST   | Log in and obtain tokens         |
 | `/auth/refresh-token` | POST   | Obtain a new access token        |
 | `/auth/logout`        | POST   | Log out and clear the session    |
-| `/auth/verify`        | POST   | Verify a user after registration |
+| `/user/verify`        | POST   | Verify a user after registration |
 
 ---
 
