@@ -1,14 +1,10 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
-  RequestTimeoutException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
-import { AuthService } from 'src/auth/auth.service';
 import { CreateUserProvider } from './providers/create-user.provider';
 import { FindUserProvider } from './providers/find-user.provider';
 import { ConfigService } from '@nestjs/config';
@@ -21,7 +17,6 @@ import { RefreshTokenDto } from 'src/auth/dtos/refresh-token.dto';
 import { VerifyUserDto } from './dtos/verify-user.dto';
 import { UserSessionProvider } from './providers/user-session.provider';
 import { RefresehTokenProvider } from './providers/refresh-token.provider';
-import { HashingProvider } from 'src/auth/providers/hashing.provider';
 
 @Injectable()
 export class UserService {
@@ -33,7 +28,6 @@ export class UserService {
     private readonly configService: ConfigService,
     private readonly logger: LoggerProvider,
     private readonly userSessionProvider: UserSessionProvider,
-    private readonly hashingProvider: HashingProvider,
   ) {}
 
   public findAll() {
@@ -92,7 +86,7 @@ export class UserService {
       if (!userId) {
         this.logger.error('session token expired');
         await this.userSessionProvider.deactive(dto.refreshToken, null);
-        throw new UnauthorizedException('session token expired');
+        return null; // as the session is removed successfully so we return null
       }
 
       this.logger.debug('refresh token verified');

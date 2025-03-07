@@ -34,7 +34,7 @@ export class UserSessionProvider {
       const session: UserSession = await this.findSessionByUserID(userID);
       if (!session) {
         this.logger.error('userID not found in session');
-        throw new UnauthorizedException('refresh token not found in session');
+        throw new UnauthorizedException('userID not found in session');
       }
 
       session.hashedRefreshToken = null;
